@@ -1,0 +1,83 @@
+{
+  "Navigation": {
+    "home": "الرئيسية",
+    "shop": "المتجر",
+    "about": "معلومات عنا",
+    "contact": "اتصل بنا",
+    "search": "بحث...",
+    "no_results": "لم يتم العثور على منتجات",
+    "view_all_results": "عرض جميع النتائج",
+    "cart": "عربة التسوق",
+    "login": "تسجيل الدخول"
+  },
+  "Categories": {
+    "shoes": "أحذية",
+    "bags": "حقائب",
+    "accessories": "إكسسوارات",
+    "perfumes": "عطور",
+    "makeup": "مكياج",
+    "watches": "ساعات",
+    "glasses": "نظارات"
+  },
+  "Reviews": {
+    "title": "أصوات التميز",
+    "subtitle": "الكلمة لمن يثق بنا. اكتشف شهادات مجتمعنا المتميز.",
+    "average": "متوسط التقييم",
+    "based_on": "بناءً على {count} مراجعات",
+    "rating_out_of_5": "تقييم {rating} من 5",
+    "write_review": "كتابة مراجعة",
+    "filter_product": "البحث حسب المنتج...",
+    "all_products": "جميع المنتجات",
+    "buy_now": "اشتري مجدداً"
+  },
+  "Home": {
+    "hero_title": "إعادة تعريف الأناقة",
+    "hero_subtitle": "اكتشف مجموعتنا الجديدة المستوحاة من الطبيعة.",
+    "shop_now": "تسوق الآن",
+    "featured": "مميز",
+    "new_arrivals": "وصل حديثاً",
+    "best_sellers": "الأكثر مبيعاً"
+  },
+  "Filters": {
+    "filter_title": "فلاتر",
+    "categories": "الفئات",
+    "price_range": "نطاق السعر",
+    "availability": "التوفر",
+    "in_stock": "متوفر فقط",
+    "sort_by": "ترتيب حسب",
+    "sort_newest": "الأحدث",
+    "sort_price_asc": "السعر: من الأقل للأعلى",
+    "sort_price_desc": "السعر: من الأعلى للأقل",
+    "price_under_15k": "أقل من 15,000 دج",
+    "price_15k_30k": "15,000 دج - 30,000 دج",
+    "price_30k_60k": "30,000 دج - 60,000 دج",
+    "price_over_60k": "أكثر من 60,000 دج",
+    "clear_filters": "مسح الفلاتر",
+    "apply": "تطبيق",
+    "close": "إغلاق"
+  },
+  "Checkout": {
+    "success_title": "شكراً لطلبك",
+    "success_desc": "تمت معالجة الدفع بنجاح. ستتلقى رسالة تأكيد إلكترونية قريباً.",
+    "continue_shopping": "مواصلة التسوق",
+    "cancel_title": "تم إلغاء الدفع",
+    "cancel_desc": "تم إلغاء الدفع ولم يتم خصم أي مبلغ.",
+    "back_to_cart": "العودة إلى السلة"
+  },
+  "Orders": {
+    "my_orders": "طلباتي",
+    "track_order": "تتبع طلبي",
+    "order_id": "طلب رقم #",
+    "date": "التاريخ",
+    "total": "الإجمالي",
+    "status": "الحالة",
+    "details": "التفاصيل",
+    "empty": "ليس لديك أي طلبات حتى الآن.",
+    "back_to_shop": "العودة للمتجر",
+    "shipping_address": "عنوان الشحن",
+    "items": "المنتجات",
+    "summary": "ملخص الطلب",
+    "tracking": "تتبع الشحنة",
+    "not_found": "الطلب غير موجود"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "Navigation": {
+    "home": "Accueil",
+    "shop": "Boutique",
+    "about": "À propos",
+    "contact": "Contact",
+    "search": "Rechercher...",
+    "no_results": "Aucun produit trouvé",
+    "view_all_results": "Voir tous les résultats",
+    "cart": "Panier",
+    "login": "Connexion"
+  },
+  "Categories": {
+    "shoes": "Chaussures",
+    "bags": "Sacs",
+    "accessories": "Accessoires",
+    "perfumes": "Parfums",
+    "makeup": "Maquillage",
+    "watches": "Montres",
+    "glasses": "Lunettes"
+  },
+  "Home": {
+    "hero_title": "L'Élégance Redéfinie",
+    "hero_subtitle": "Découvrez notre nouvelle collection inspirée par la nature.",
+    "shop_now": "Découvrir",
+    "featured": "En Vedette",
+    "new_arrivals": "Nouveautés",
+    "best_sellers": "Meilleures Ventes"
+  },
+  "Filters": {
+    "filter_title": "Filtres",
+    "categories": "Catégories",
+    "price_range": "Tranche de Prix",
+    "availability": "Disponibilité",
+    "in_stock": "En stock",
+    "sort_by": "Trier par",
+    "sort_newest": "Nouveautés",
+    "sort_price_asc": "Prix: Croissant",
+    "sort_price_desc": "Prix: Décroissant",
+    "price_under_15k": "Moins de 15 000 DZD",
+    "price_15k_30k": "15 000 DZD - 30 000 DZD",
+    "price_30k_60k": "30 000 DZD - 60 000 DZD",
+    "price_over_60k": "Plus de 60 000 DZD",
+    "clear_filters": "Effacer",
+    "apply": "Appliquer",
+    "close": "Fermer"
+  },
+  "Checkout": {
+    "success_title": "Merci pour votre commande",
+    "success_desc": "Votre paiement a été traité avec succès. Vous recevrez un e-mail de confirmation sous peu.",
+    "continue_shopping": "Continuer vos achats",
+    "cancel_title": "Paiement annulé",
+    "cancel_desc": "Votre paiement a été annulé et aucun montant n'a été débité.",
+    "back_to_cart": "العودة إلى السلة"
+  },
+  "Reviews": {
+    "title": "Voix d'Excellence",
+    "subtitle": "La parole est à ceux qui nous font confiance. Découvrez les témoignages de notre communauté d'élite.",
+    "average": "Note Moyenne",
+    "based_on": "Basé sur {count} avis",
+    "rating_out_of_5": "Note de {rating} sur 5",
+    "write_review": "Rédiger un avis",
+    "filter_product": "Rechercher par produit...",
+    "all_products": "Tous les produits",
+    "buy_now": "Acheter à nouveau"
+  },
+  "Orders": {
+    "my_orders": "Mes Commandes",
+    "track_order": "Suivre ma Commande",
+    "order_id": "Commande #",
+    "date": "Date",
+    "total": "Total",
+    "status": "Statut",
+    "details": "Détails",
+    "empty": "Vous n'avez pas encore passé de commande.",
+    "back_to_shop": "Retour à la boutique",
+    "shipping_address": "Adresse de Livraison",
+    "items": "Articles",
+    "summary": "Résumé",
+    "tracking": "Suivi du colis",
+    "not_found": "Commande introuvable"
+  }
+}
