@@ -14,7 +14,7 @@ export default function LoginPage() {
   const locale = useLocale();
   const t = useTranslations("Navigation");
   const isRTL = locale === "ar";
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -45,7 +45,7 @@ export default function LoginPage() {
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
+    visible: {
       opacity: 1,
       transition: { staggerChildren: 0.1, delayChildren: 0.2 }
     }
@@ -60,9 +60,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col md:flex-row relative overflow-hidden bg-background">
       {/* Left Visual Section */}
       <div className={`hidden md:flex relative w-1/2 h-screen overflow-hidden group ${isRTL ? 'order-last' : 'order-first'}`}>
-        <img 
-          src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2000&auto=format&fit=crop" 
-          alt="Luxury Fashion" 
+        <img
+          src="/logo.png"
+          alt="Luxury Fashion"
           className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -72,9 +72,6 @@ export default function LoginPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            <h2 className="text-5xl font-playfair font-bold text-white mb-6 uppercase tracking-[0.1em] leading-tight">
-              {isRTL ? 'إرث من الأناقة' : 'Héritage d\'élégance'}
-            </h2>
             <p className="text-white/70 text-sm uppercase tracking-[0.3em] font-bold">
               Loro Piana • Excellence since 1924
             </p>
@@ -84,7 +81,7 @@ export default function LoginPage() {
 
       {/* Right Login Form Section */}
       <div className="flex-1 flex items-center justify-center p-8 md:p-20 relative z-10">
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -93,7 +90,7 @@ export default function LoginPage() {
           {/* Header */}
           <motion.div variants={itemVariants} className="text-center mb-12">
             <Link href={`/${locale}`} className="inline-block mb-8">
-               <h3 className="text-2xl font-playfair tracking-[0.4em] uppercase font-bold hover:scale-110 transition-transform">Loro Piana</h3>
+              <h3 className="text-2xl font-playfair tracking-[0.4em] uppercase font-bold hover:scale-110 transition-transform">Loro Piana</h3>
             </Link>
             <h1 className="text-4xl font-playfair font-bold uppercase tracking-widest mb-4">
               {isRTL ? 'تسجيل الدخول' : t('login')}
@@ -107,7 +104,7 @@ export default function LoginPage() {
           <div className="glass-panel-ultra p-8 md:p-10 rounded-[2.5rem] shadow-2xl border border-white/20 dark:border-white/5 relative overflow-hidden group">
             {/* Soft Glow decoration */}
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-gold-dark/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-            
+
             <form onSubmit={handleLogin} className="space-y-6 relative z-10">
               <motion.div variants={itemVariants} className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-taupe ml-2">Email</label>
@@ -139,7 +136,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <button 
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-taupe hover:text-foreground transition-colors"
@@ -150,7 +147,7 @@ export default function LoginPage() {
               </motion.div>
 
               {errorMsg && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-xs flex items-center gap-3"
@@ -160,7 +157,7 @@ export default function LoginPage() {
                 </motion.div>
               )}
 
-              <motion.button 
+              <motion.button
                 variants={itemVariants}
                 type="submit"
                 disabled={loading}
@@ -186,8 +183,8 @@ export default function LoginPage() {
             <p className="text-taupe uppercase tracking-[0.2em] text-[10px] font-bold">
               {isRTL ? 'ليس لديك حساب؟' : 'Pas encore de compte ?'}
             </p>
-            <Link 
-              href={`/${locale}/register`} 
+            <Link
+              href={`/${locale}/register`}
               className="inline-block mt-3 text-xs uppercase font-bold tracking-widest border-b border-foreground/20 pb-1 hover:border-foreground transition-all"
             >
               {isRTL ? 'أنشئ حسابك الآن' : 'Créer un compte'}
@@ -200,11 +197,11 @@ export default function LoginPage() {
 }
 
 function AlertCircle({ size, className }: { size: number, className: string }) {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-        </svg>
-    )
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  )
 }
