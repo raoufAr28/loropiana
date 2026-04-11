@@ -81,7 +81,7 @@ export function HeroSection({ locale }: { locale: string }) {
         animate="visible"
         className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-20 z-10"
       >
-        
+
         <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-playfair font-bold text-foreground leading-[1.1] tracking-wide mb-6">
           {t("hero_title")}
         </motion.h1>
@@ -116,7 +116,7 @@ export function HeroSection({ locale }: { locale: string }) {
           className="absolute inset-[-10%] w-[120%] h-[120%] origin-center"
         >
           <img
-            src="/hero-collection.png"
+            src="/logo.png"
             alt="Luxury Fashion Collection"
             className="w-full h-full object-cover object-center"
           />
