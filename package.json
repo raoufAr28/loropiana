@@ -25,7 +25,6 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
-    "@next/swc-win32-x64-msvc": "^16.2.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
