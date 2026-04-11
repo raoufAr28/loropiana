@@ -32,7 +32,7 @@ export function CategoryForm({
     }
   );
 
-  const [previewUrl, setPreviewUrl] = useState(
+  const [previewUrl, setPreviewUrl] = useState<string>(
     initialData?.image_url || ""
   );
 
@@ -70,6 +70,9 @@ export function CategoryForm({
 
   const handleChange = (field: keyof CategoryFormData, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: false }));
+    }
   };
 
   const handleImageUpload = async (
@@ -78,20 +81,27 @@ export function CategoryForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 🔥 preview فوري
+    console.log("File selected:", file.name);
+
+    // preview local مباشر
     const localPreview = URL.createObjectURL(file);
     setPreviewUrl(localPreview);
 
     setIsUploading(true);
-    showToast("Uploading image...", "success");
 
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `cat-${Date.now()}.${fileExt}`;
+      const safeName = file.name.replace(/\s+/g, "_");
+      const fileName = `cat-${Date.now()}-${safeName}`;
+
+      console.log("Uploading to bucket: categories", fileName);
 
       const { error } = await supabase.storage
         .from("categories")
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
 
       if (error) throw error;
 
@@ -99,20 +109,21 @@ export function CategoryForm({
         data: { publicUrl },
       } = supabase.storage.from("categories").getPublicUrl(fileName);
 
-      // 🔥 تحديث state
+      console.log("Upload success. Public URL:", publicUrl);
+
+      // خزّن الرابط الحقيقي للحفظ في DB
       setForm((prev) => ({
         ...prev,
         image_url: publicUrl,
       }));
 
-      setPreviewUrl(publicUrl);
-
-      showToast("Image uploaded successfully", "success");
+      // لا تبدل preview بالرابط العمومي الآن
+      // خلّي preview المحلي ظاهر
     } catch (err: any) {
-      console.error(err);
+      console.error("Category upload failed:", err);
       showToast(err.message || "Upload failed", "error");
 
-      // رجوع للحالة القديمة
+      // رجوع للحالة السابقة إذا فشل الرفع
       setPreviewUrl(form.image_url || "");
     } finally {
       setIsUploading(false);
@@ -120,19 +131,27 @@ export function CategoryForm({
     }
   };
 
+  const labelClass =
+    "text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 block ml-1";
+
+  const inputClass = (field: string) =>
+    `w-full bg-card border ${errors[field] ? "border-danger" : "border-border"
+    } px-4 py-3 rounded-xl text-sm outline-none`;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-
       {/* IMAGE */}
       <div className="flex gap-6 items-start">
         <div className="w-24 h-24 rounded-2xl bg-muted border flex items-center justify-center overflow-hidden relative group">
-
           {isUploading ? (
-            <Loader2 className="animate-spin text-primary" />
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center">
+              <Loader2 className="animate-spin text-primary" />
+            </div>
           ) : previewUrl ? (
             <div className="relative w-full h-full">
               <img
                 src={previewUrl}
+                alt="Preview"
                 className="w-full h-full object-cover"
               />
               <button
@@ -147,7 +166,7 @@ export function CategoryForm({
               </button>
             </div>
           ) : (
-            <ImageIcon />
+            <ImageIcon className="text-muted-foreground/40" size={28} />
           )}
         </div>
 
@@ -157,12 +176,12 @@ export function CategoryForm({
             accept="image/*"
             onChange={handleImageUpload}
             className="hidden"
-            id="upload"
+            id="category-image-upload"
             disabled={isUploading}
           />
 
           <label
-            htmlFor="upload"
+            htmlFor="category-image-upload"
             className="cursor-pointer border-2 border-dashed px-6 py-4 rounded-xl block text-center"
           >
             {isUploading ? "Uploading..." : "Choose Collection Image"}
@@ -172,30 +191,27 @@ export function CategoryForm({
 
       {/* NAME FR */}
       <div>
-        <label>Name FR</label>
+        <label className={labelClass}>Name FR</label>
         <input
           value={form.name_fr}
-          onChange={(e) =>
-            handleChange("name_fr", e.target.value)
-          }
-          className="w-full border px-4 py-3 rounded-xl"
+          onChange={(e) => handleChange("name_fr", e.target.value)}
+          className={inputClass("name_fr")}
         />
       </div>
 
       {/* NAME AR */}
       <div>
-        <label>Name AR</label>
+        <label className={labelClass}> الاسم AR</label>
         <input
           value={form.name_ar}
-          onChange={(e) =>
-            handleChange("name_ar", e.target.value)
-          }
-          className="w-full border px-4 py-3 rounded-xl"
+          onChange={(e) => handleChange("name_ar", e.target.value)}
+          className={inputClass("name_ar")}
         />
       </div>
 
       <button
         type="submit"
+        disabled={loading || isUploading}
         className="bg-primary text-white px-6 py-3 rounded-xl"
       >
         {loading ? "Loading..." : "Save"}

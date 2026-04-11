@@ -12,7 +12,6 @@ export interface Category {
   description_ar: string;
   image_url: string;
   created_at: string;
-  products?: Array<{ count: number }>;
 }
 
 export interface CategoryFormData {
@@ -24,7 +23,9 @@ export interface CategoryFormData {
   image_url: string;
 }
 
-export function useCategories(showToast: (m: string, t: 'success' | 'error') => void) {
+export function useCategories(
+  showToast: (m: string, t: "success" | "error") => void
+) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -33,14 +34,15 @@ export function useCategories(showToast: (m: string, t: 'success' | 'error') => 
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('categories')
-        .select('*, products(count)')
-        .order('name_fr');
+        .from("categories")
+        .select("*")
+        .order("name_fr", { ascending: true });
 
       if (error) throw error;
+
       setCategories(data || []);
     } catch (err: any) {
-      showToast(err.message, "error");
+      showToast(err.message || "Erreur lors du chargement", "error");
     } finally {
       setLoading(false);
     }
@@ -50,22 +52,35 @@ export function useCategories(showToast: (m: string, t: 'success' | 'error') => 
     fetchData();
   }, [fetchData]);
 
-  const saveCategory = async (form: CategoryFormData, editingId?: string) => {
+  const saveCategory = async (
+    form: CategoryFormData,
+    editingId?: string
+  ) => {
     setSubmitting(true);
     try {
       if (editingId) {
-        const { error } = await supabase.from('categories').update(form).eq('id', editingId);
+        const { error } = await supabase
+          .from("categories")
+          .update(form)
+          .eq("id", editingId);
+
         if (error) throw error;
+
         showToast("Catégorie mise à jour", "success");
       } else {
-        const { error } = await supabase.from('categories').insert([form]);
+        const { error } = await supabase
+          .from("categories")
+          .insert([form]);
+
         if (error) throw error;
+
         showToast("Nouvelle catégorie créée", "success");
       }
+
       await fetchData();
       return true;
     } catch (err: any) {
-      showToast(err.message, "error");
+      showToast(err.message || "Erreur lors de l'enregistrement", "error");
       return false;
     } finally {
       setSubmitting(false);
@@ -74,13 +89,18 @@ export function useCategories(showToast: (m: string, t: 'success' | 'error') => 
 
   const deleteCategory = async (id: string) => {
     try {
-      const { error } = await supabase.from('categories').delete().eq('id', id);
+      const { error } = await supabase
+        .from("categories")
+        .delete()
+        .eq("id", id);
+
       if (error) throw error;
+
       showToast("Catégorie supprimée", "success");
       await fetchData();
       return true;
     } catch (err: any) {
-      showToast(err.message, "error");
+      showToast(err.message || "Erreur lors de la suppression", "error");
       return false;
     }
   };
@@ -91,6 +111,6 @@ export function useCategories(showToast: (m: string, t: 'success' | 'error') => 
     submitting,
     saveCategory,
     deleteCategory,
-    refresh: fetchData
+    refresh: fetchData,
   };
 }
