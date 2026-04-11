@@ -3,9 +3,9 @@
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useState, useMemo } from "react";
-import { 
+import {
   SlidersHorizontal, X, Footprints, ShoppingBag, Gem, Sparkles, Brush, Watch, Glasses,
-  Euro, CheckCircle2, Tag, RotateCcw
+  CheckCircle2, Tag, RotateCcw
 } from "lucide-react";
 
 interface Category {
@@ -35,16 +35,16 @@ const FilterCard = ({ title, children }: { title: string, children: React.ReactN
   </div>
 );
 
-const FilterChip = ({ 
-  label, icon, active, onClick 
-}: { 
-  label: string, icon?: React.ReactNode, active: boolean, onClick: () => void 
+const FilterChip = ({
+  label, icon, active, onClick
+}: {
+  label: string, icon?: React.ReactNode, active: boolean, onClick: () => void
 }) => (
   <button
     onClick={onClick}
     className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs uppercase tracking-wider transition-all duration-300 border
-      ${active 
-        ? "bg-foreground text-background border-foreground shadow-[0_4px_12px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.05)] scale-[1.02]" 
+      ${active
+        ? "bg-foreground text-background border-foreground shadow-[0_4px_12px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_12px_rgba(255,255,255,0.05)] scale-[1.02]"
         : "bg-transparent text-taupe border-gray-200 dark:border-gray-800 hover:border-gray-400 dark:hover:border-gray-500 hover:text-foreground hover:bg-gray-50 dark:hover:bg-[#252525]"
       }`}
   >
@@ -73,14 +73,14 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       if (value) {
-        if (name === "category" || name === "price") {
-           if (params.get(name) === value) {
-             params.delete(name);
-           } else {
-             params.set(name, value);
-           }
+        if (name === "category") {
+          if (params.get(name) === value) {
+            params.delete(name);
+          } else {
+            params.set(name, value);
+          }
         } else {
-           params.set(name, value);
+          params.set(name, value);
         }
       } else {
         params.delete(name);
@@ -105,15 +105,7 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
   };
 
   const currentCategory = searchParams.get('category');
-  const currentPrice = searchParams.get('price');
   const currentInStock = searchParams.get('inStock') === 'true';
-
-  const priceRanges = useMemo(() => [
-    { value: 'under_15k', label: t('price_under_15k') },
-    { value: '15k_30k', label: t('price_15k_30k') },
-    { value: '30k_60k', label: t('price_30k_60k') },
-    { value: 'over_60k', label: t('price_over_60k') }
-  ], [t]);
 
   const activeFilters = useMemo(() => {
     const filters = [];
@@ -121,19 +113,15 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
       const cat = categories.find(c => c.slug === currentCategory);
       filters.push({ key: 'category', value: currentCategory, label: cat ? cat.name : currentCategory });
     }
-    if (currentPrice) {
-      const range = priceRanges.find(r => r.value === currentPrice);
-      filters.push({ key: 'price', value: currentPrice, label: range ? range.label : currentPrice });
-    }
     if (currentInStock) {
       filters.push({ key: 'inStock', value: 'true', label: t('in_stock') });
     }
     return filters;
-  }, [currentCategory, currentPrice, currentInStock, categories, priceRanges, t]);
+  }, [currentCategory, currentInStock, categories, t]);
 
   const FiltersContent = () => (
     <div className="flex flex-col gap-10">
-      
+
       {/* Active Filters Header */}
       {activeFilters.length > 0 && (
         <div className="flex flex-col gap-3">
@@ -141,7 +129,7 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
             <span className="text-xs uppercase tracking-widest text-taupe font-semibold">
               {activeFilters.length} Filtre{activeFilters.length > 1 ? 's' : ''} actif{activeFilters.length > 1 ? 's' : ''}
             </span>
-            <button 
+            <button
               onClick={clearFilters}
               className="group flex items-center gap-1.5 text-xs uppercase tracking-widest hover:text-red-500 transition-colors text-taupe"
             >
@@ -151,13 +139,13 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
           </div>
           <div className="flex flex-wrap gap-2">
             {activeFilters.map(filter => (
-              <FilterBadge 
-                key={filter.key} 
-                label={filter.label} 
+              <FilterBadge
+                key={filter.key}
+                label={filter.label}
                 onRemove={() => {
                   if (filter.key === 'inStock') handleStockToggle();
                   else toggleParam(filter.key, filter.value);
-                }} 
+                }}
               />
             ))}
           </div>
@@ -168,29 +156,14 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
 
       <div className="h-[1px] bg-gray-100 dark:bg-gray-800/60 w-full rounded-full" />
 
-      {/* Price Range */}
-      <FilterCard title={t('price_range')}>
-        {priceRanges.map((range) => (
-          <FilterChip 
-            key={range.value}
-            label={range.label}
-            icon={<Euro size={14} />}
-            active={currentPrice === range.value}
-            onClick={() => toggleParam('price', range.value)}
-          />
-        ))}
-      </FilterCard>
-
-      <div className="h-[1px] bg-gray-100 dark:bg-gray-800/60 w-full rounded-full" />
-
       {/* Availability */}
       <FilterCard title={t('availability')}>
-         <FilterChip 
-            label={t('in_stock')}
-            icon={<CheckCircle2 size={14} className={currentInStock ? "text-background" : "text-green-600"} />}
-            active={currentInStock}
-            onClick={handleStockToggle}
-          />
+        <FilterChip
+          label={t('in_stock')}
+          icon={<CheckCircle2 size={14} className={currentInStock ? "text-background" : "text-green-600"} />}
+          active={currentInStock}
+          onClick={handleStockToggle}
+        />
       </FilterCard>
 
       <div className="h-[1px] bg-gray-100 dark:bg-gray-800/60 w-full rounded-full" />
@@ -199,10 +172,10 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
       <div className="flex flex-col gap-4">
         <h3 className="font-playfair text-xl uppercase tracking-widest font-semibold text-foreground/90">{t('sort_by')}</h3>
         <div className="relative">
-          <select 
-             className="w-full appearance-none bg-background/50 backdrop-blur border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 rounded-2xl px-5 py-4 outline-none text-sm uppercase tracking-wider cursor-pointer shadow-sm transition-colors"
-             value={searchParams.get('sort') || 'newest'}
-             onChange={(e) => toggleParam('sort', e.target.value)}
+          <select
+            className="w-full appearance-none bg-background/50 backdrop-blur border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 rounded-2xl px-5 py-4 outline-none text-sm uppercase tracking-wider cursor-pointer shadow-sm transition-colors"
+            value={searchParams.get('sort') || 'newest'}
+            onChange={(e) => toggleParam('sort', e.target.value)}
           >
             <option value="newest">{t('sort_newest')}</option>
             <option value="price_asc">{t('sort_price_asc')}</option>
@@ -210,7 +183,7 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
           </select>
           <div className="absolute top-1/2 -translate-y-1/2 right-5 pointer-events-none text-taupe">
             <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
         </div>
@@ -223,7 +196,7 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
     <>
       {/* Mobile Toggle Button */}
       <div className="md:hidden flex justify-between items-center mb-6 w-full">
-        <button 
+        <button
           onClick={() => setIsMobileOpen(true)}
           className="flex items-center justify-center gap-3 w-full bg-foreground text-background rounded-full px-6 py-4 uppercase text-sm font-bold tracking-widest shadow-lg hover:bg-opacity-90 transition-all active:scale-95"
         >
@@ -246,11 +219,11 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
               <button onClick={() => setIsMobileOpen(false)} className="text-taupe hover:text-foreground bg-gray-100 dark:bg-gray-800 p-2 rounded-full transition-colors"><X size={20} /></button>
             </div>
             <FiltersContent />
-            <button 
-               onClick={() => setIsMobileOpen(false)}
-               className="mt-12 w-full bg-foreground text-background py-4 rounded-full uppercase font-bold tracking-widest shadow-lg active:scale-95 transition-transform"
-             >
-               {t('apply')}
+            <button
+              onClick={() => setIsMobileOpen(false)}
+              className="mt-12 w-full bg-foreground text-background py-4 rounded-full uppercase font-bold tracking-widest shadow-lg active:scale-95 transition-transform"
+            >
+              {t('apply')}
             </button>
           </div>
         </div>
@@ -258,9 +231,9 @@ export function ShopFilters({ categories }: { categories: Category[] }) {
 
       {/* Desktop Sticky Luxury Sidebar */}
       <aside className="hidden md:block w-80 flex-shrink-0 sticky top-28 h-fit self-start">
-         <div className="bg-[#FAF9F6]/80 dark:bg-[#1C1A19]/80 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
-            <FiltersContent />
-         </div>
+        <div className="bg-[#FAF9F6]/80 dark:bg-[#1C1A19]/80 backdrop-blur-xl border border-white/20 dark:border-white/5 rounded-3xl p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+          <FiltersContent />
+        </div>
       </aside>
     </>
   );

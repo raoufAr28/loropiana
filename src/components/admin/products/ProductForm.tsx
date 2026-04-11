@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Image as ImageIcon, Star, Plus, Check } from "lucide-react";
+import { X, Image as ImageIcon, Star, Plus, Check, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/utils/supabase/client";
 import { ProductFormData } from "@/hooks/admin/useProducts";
+import { slugify } from "@/utils/slugify";
 
 interface ProductFormProps {
   initialData?: ProductFormData;
@@ -27,6 +29,7 @@ export function ProductForm({ initialData, categories, onSubmit, loading, locale
     image_url: ""
   });
 
+  const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -40,7 +43,6 @@ export function ProductForm({ initialData, categories, onSubmit, loading, locale
     const newErrors: Record<string, boolean> = {};
     if (!form.name_fr) newErrors.name_fr = true;
     if (!form.name_ar) newErrors.name_ar = true;
-    if (!form.slug) newErrors.slug = true;
     if (!form.category_id) newErrors.category_id = true;
     if (form.price <= 0) newErrors.price = true;
 
@@ -50,13 +52,46 @@ export function ProductForm({ initialData, categories, onSubmit, loading, locale
     }
 
     setErrors({});
-    onSubmit(form);
+    
+    // Auto-generate slug for Create, preserve for Edit
+    const finalSlug = initialData?.slug || slugify(form.name_fr);
+    
+    onSubmit({
+      ...form,
+      slug: finalSlug
+    });
   };
 
   const handleChange = (field: keyof ProductFormData, value: any) => {
     setForm(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const fileName = `${Date.now()}-${file.name.replace(/\s/g, '_')}`;
+      const { data, error } = await supabase.storage
+        .from('products')
+        .upload(fileName, file);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('products')
+        .getPublicUrl(fileName);
+
+      handleChange('image_url', publicUrl);
+    } catch (err: any) {
+      console.error("Upload error:", err.message);
+      // We could add a toast here via prop if available, but for now console error
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -95,15 +130,6 @@ export function ProductForm({ initialData, categories, onSubmit, loading, locale
               />
             </div>
 
-            <div>
-              <label className={labelClass}>Reference URL (Slug)</label>
-              <input
-                value={form.slug}
-                onChange={(e) => handleChange('slug', e.target.value)}
-                className={inputClass('slug')}
-                placeholder="polo-cashmere-iconic"
-              />
-            </div>
 
             <div>
               <label className={labelClass}>Category</label>
@@ -172,31 +198,66 @@ export function ProductForm({ initialData, categories, onSubmit, loading, locale
           </div>
 
           <div className="space-y-4">
-            <label className={labelClass}>Product Media</label>
-            <div className="space-y-3">
-              <div className="flex gap-4 items-center">
-                <div className="w-16 h-16 rounded-xl bg-muted border border-border flex-shrink-0 flex items-center justify-center overflow-hidden">
-                  {form.image_url ? (
-                    <div className="relative w-full h-full group">
+            <label className={labelClass}>Product Image</label>
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                <div className="relative w-32 h-32 rounded-2xl bg-muted border border-border flex-shrink-0 flex items-center justify-center overflow-hidden shadow-sm group">
+                  {isUploading ? (
+                    <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex flex-col items-center justify-center gap-2">
+                       <Loader2 className="animate-spin text-primary" size={24} />
+                       <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Uploading...</span>
+                    </div>
+                  ) : form.image_url ? (
+                    <div className="relative w-full h-full">
                       <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
                       <button
                         type="button"
                         onClick={() => handleChange('image_url', '')}
-                        className="absolute inset-0 bg-[color-mix(in_srgb,var(--foreground)_40%,transparent)] text-background opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                        className="absolute top-2 right-2 bg-background/80 backdrop-blur text-foreground p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all hover:bg-danger hover:text-white shadow-sm"
                       >
-                        <X size={16} />
+                        <X size={14} />
                       </button>
                     </div>
                   ) : (
-                    <ImageIcon className="text-muted-foreground" size={24} />
+                    <div className="flex flex-col items-center gap-2">
+                      <ImageIcon className="text-muted-foreground/40" size={32} />
+                      <span className="text-[8px] font-bold uppercase tracking-widest text-muted-foreground/60 text-center px-4">No image selected</span>
+                    </div>
                   )}
                 </div>
-                <input
-                  value={form.image_url}
-                  onChange={(e) => handleChange('image_url', e.target.value)}
-                  className={inputClass('image_url')}
-                  placeholder="Image URL (https://...)"
-                />
+
+                <div className="flex-1 w-full sm:w-auto">
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="product-image-upload"
+                      disabled={isUploading}
+                    />
+                    <label
+                      htmlFor="product-image-upload"
+                      className={`flex items-center justify-center gap-3 px-6 py-4 rounded-xl border-2 border-dashed transition-all cursor-pointer text-xs font-black uppercase tracking-[0.15em] w-full
+                        ${isUploading 
+                          ? 'bg-muted border-border cursor-not-allowed opacity-50' 
+                          : 'bg-card border-border hover:border-primary hover:bg-[color-mix(in_srgb,var(--primary)_5%,transparent)] text-muted-foreground hover:text-primary active:scale-[0.98]'
+                        }
+                      `}
+                    >
+                      {isUploading ? (
+                        <Loader2 className="animate-spin" size={16} />
+                      ) : (
+                        <Upload size={16} />
+                      )}
+                      {isUploading ? "Uploading..." : form.image_url ? "Change Image" : "Choose Product Image"}
+                    </label>
+                  </div>
+                  <p className="mt-3 text-[10px] text-muted-foreground/60 font-medium uppercase tracking-widest leading-relaxed">
+                    Recommended: JPG, PNG or WebP. Max size 2MB.<br/>
+                    Support mobile gallery and camera.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

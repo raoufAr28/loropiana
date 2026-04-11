@@ -107,6 +107,7 @@ export function CategoriesModule({ showToast, locale }: CategoriesModuleProps) {
           onSubmit={handleFormSubmit}
           loading={submitting}
           locale={locale}
+          showToast={showToast}
         />
       </SaaSModal>
 

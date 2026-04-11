@@ -41,17 +41,12 @@
   "Filters": {
     "filter_title": "فلاتر",
     "categories": "الفئات",
-    "price_range": "نطاق السعر",
     "availability": "التوفر",
     "in_stock": "متوفر فقط",
     "sort_by": "ترتيب حسب",
     "sort_newest": "الأحدث",
     "sort_price_asc": "السعر: من الأقل للأعلى",
     "sort_price_desc": "السعر: من الأعلى للأقل",
-    "price_under_15k": "أقل من 15,000 دج",
-    "price_15k_30k": "15,000 دج - 30,000 دج",
-    "price_30k_60k": "30,000 دج - 60,000 دج",
-    "price_over_60k": "أكثر من 60,000 دج",
     "clear_filters": "مسح الفلاتر",
     "apply": "تطبيق",
     "close": "إغلاق"

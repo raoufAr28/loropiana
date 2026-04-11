@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: #F7F5F1;
+    --background: hsla(224, 58%, 89%, 0.759);
     --foreground: #111827;
     --card: #FFFFFF;
     --muted: #EDE8DE;

@@ -52,21 +52,35 @@ export default function AdminDashboard() {
 
   useEffect(() => { checkAdmin(); }, []);
 
-  const checkAdmin = async () => {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (!user || authError) { router.push(`/${locale}/login`); return; }
-    
-    // Safety check for developer account OR admin role in profiles
-    const isAdminEmail = user.email === "raoufarioua96@gmail.com";
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    
-    if (isAdminEmail || profile?.role === 'admin') { 
-      setIsAdmin(true); 
-      fetchGlobalData(); 
-    } else { 
-      router.push(`/${locale}`); 
-    }
-  };
+const checkAdmin = async () => {
+  const {
+    data: { session },
+    error: authError,
+  } = await supabase.auth.getSession();
+
+  const user = session?.user;
+
+  if (!user || authError) {
+    router.push(`/${locale}/login`);
+    return;
+  }
+
+  // تحقق admin
+  const isAdminEmail = user.email === "raoufarioua96@gmail.com";
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (isAdminEmail || profile?.role === 'admin') {
+    setIsAdmin(true);
+    fetchGlobalData();
+  } else {
+    router.push(`/${locale}`);
+  }
+};
 
   useEffect(() => {
     if (!isAdmin) return;

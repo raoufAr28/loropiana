@@ -33,12 +33,6 @@ export default async function ShopPage({
      query = query.eq('categories.slug', searchParams.category);
   }
 
-  if (searchParams.price) {
-     if (searchParams.price === 'under_15k') query = query.lt('price', 15000);
-     if (searchParams.price === '15k_30k') query = query.gte('price', 15000).lte('price', 30000);
-     if (searchParams.price === '30k_60k') query = query.gte('price', 30000).lte('price', 60000);
-     if (searchParams.price === 'over_60k') query = query.gt('price', 60000);
-  }
 
   if (searchParams.search) {
      const searchTerm = `%${searchParams.search}%`;

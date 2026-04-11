@@ -66,7 +66,7 @@ export default function CartPage() {
             <h3 className="font-bold uppercase tracking-wider mb-6">Résumé de la commande</h3>
             <div className="flex justify-between mb-4 text-taupe">
               <span>Sous-total</span>
-              <span>€{getTotalPrice().toFixed(2)}</span>
+              <span>DZD{getTotalPrice().toFixed(2)}</span>
             </div>
             <div className="flex justify-between mb-6 text-taupe">
               <span>Livraison</span>
@@ -74,7 +74,7 @@ export default function CartPage() {
             </div>
             <div className="border-t border-gray-200 dark:border-gray-800 my-6 pt-6 flex justify-between font-bold text-xl">
               <span>Total</span>
-              <span>€{getTotalPrice().toFixed(2)}</span>
+              <span>DZD{getTotalPrice().toFixed(2)}</span>
             </div>
             <Link 
               href={`/${locale}/checkout`}

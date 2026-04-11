@@ -30,17 +30,12 @@
   "Filters": {
     "filter_title": "Filtres",
     "categories": "Catégories",
-    "price_range": "Tranche de Prix",
     "availability": "Disponibilité",
     "in_stock": "En stock",
     "sort_by": "Trier par",
     "sort_newest": "Nouveautés",
     "sort_price_asc": "Prix: Croissant",
     "sort_price_desc": "Prix: Décroissant",
-    "price_under_15k": "Moins de 15 000 DZD",
-    "price_15k_30k": "15 000 DZD - 30 000 DZD",
-    "price_30k_60k": "30 000 DZD - 60 000 DZD",
-    "price_over_60k": "Plus de 60 000 DZD",
     "clear_filters": "Effacer",
     "apply": "Appliquer",
     "close": "Fermer"
