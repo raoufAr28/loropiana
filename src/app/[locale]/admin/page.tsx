@@ -36,6 +36,7 @@ export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState({
     revenue: { 
+      total: 0,       // Gross total revenue (including shipping)
       product: 0,     // Net product revenue (total - shipping)
       confirmed: 0,   // Net confirmed product revenue
       today: 0, 
@@ -126,7 +127,7 @@ const checkAdmin = async () => {
       const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-      let revTotal = 0, revConfirmed = 0, revToday = 0, revWeek = 0, revMonth = 0;
+      let revGrossTotal = 0, revProductTotal = 0, revConfirmed = 0, revToday = 0, revWeek = 0, revMonth = 0;
       let revShipping = 0; // Optional future metric: Total shipping collected
       let ordPending = 0, ordConfirmed = 0, ordCancelled = 0;
 
@@ -136,7 +137,8 @@ const checkAdmin = async () => {
          const amount = Math.max(0, total - shipping); // Net Product Revenue
          const d = new Date(o.created_at);
          
-         revTotal += amount;
+         revGrossTotal += total;
+         revProductTotal += amount;
          
          if (o.status === 'confirmed') {
             revConfirmed += amount;
@@ -160,7 +162,8 @@ const checkAdmin = async () => {
 
       setStats({
         revenue: { 
-          product: revTotal, 
+          total: revGrossTotal,
+          product: revProductTotal, 
           confirmed: revConfirmed, 
           today: revToday, 
           thisWeek: revWeek, 

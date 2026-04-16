@@ -17,7 +17,15 @@ import { format } from "date-fns";
 
 interface DashboardModuleProps {
   stats: {
-    revenue: { total: number; confirmed: number; today: number; thisWeek: number; thisMonth: number };
+    revenue: { 
+      total: number; 
+      product: number; 
+      confirmed: number; 
+      today: number; 
+      thisWeek: number; 
+      thisMonth: number; 
+      shipping: number 
+    };
     orders: { total: number; pending: number; confirmed: number; cancelled: number };
     inventory: { total: number; lowStock: number };
     reviews: { total: number; pending: number; approved: number };
