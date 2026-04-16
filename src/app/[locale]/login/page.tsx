@@ -39,8 +39,8 @@ export default function LoginPage() {
 
     if (user) {
       // 1. Check direct whitelist
-      const isAdminEmail = user.email === "raoufarioua96@gmail.com";
-      
+      const isAdminEmail = user.email === "tamerdakhoucho@gmail.com";
+
       // 2. Check profile role in database
       const { data: profile } = await supabase
         .from('profiles')
@@ -54,8 +54,8 @@ export default function LoginPage() {
         // Not an admin: Force Sign Out + Show Error
         await supabase.auth.signOut();
         setErrorMsg(
-          isRTL 
-            ? 'هذا الدخول مخصص للإدارة فقط' 
+          isRTL
+            ? 'هذا الدخول مخصص للإدارة فقط'
             : 'Cet accès est réservé à l’administration'
         );
       }
@@ -180,7 +180,7 @@ export default function LoginPage() {
               {/* Admin-only Hint */}
               <div className="text-center py-2">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-taupe/60">
-                   {isRTL ? 'الدخول مخصص للإدارة فقط' : 'Accès réservé à l’administration'}
+                  {isRTL ? 'الدخول مخصص للإدارة فقط' : 'Accès réservé à l’administration'}
                 </p>
               </div>
 
