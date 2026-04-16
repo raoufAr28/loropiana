@@ -1,18 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/utils/supabase/client";
 import { createClient } from "@supabase/supabase-js";
 
 export interface Review {
   id: string;
   full_name: string;
-  comment: string; // Keep for legacy/admin view
+  comment?: string; // Legacy
   comment_fr: string;
   comment_ar: string;
   rating: number;
   locale: string;
-  is_approved: boolean;
+  status: 'pending' | 'approved' | 'rejected';
   is_verified?: boolean;
   product_id?: string;
   helpful_count?: number;
@@ -40,22 +39,28 @@ export function useReviews(showToast: (m: string, t: "success" | "error") => voi
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      // Admin fetches ALL reviews regardless of approval status
+      // Admin fetches ALL reviews
       const { data, error } = await adminClient
         .from("reviews")
         .select(`
           *,
-          products(
+          products (
             name_fr,
             name_ar,
             slug,
-            product_images(image_url)
+            product_images (image_url)
           )
         `)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setReviews(data || []);
+      if (error) {
+        // Fallback for missing relation cache while user runs SQL
+        const { data: fallback, error: err2 } = await adminClient.from("reviews").select("*").order("created_at", { ascending: false });
+        if (err2) throw err2;
+        setReviews(fallback || []);
+      } else {
+        setReviews(data || []);
+      }
     } catch (err: any) {
       showToast(err.message || "Erreur lors du chargement des avis", "error");
     } finally {
@@ -67,17 +72,19 @@ export function useReviews(showToast: (m: string, t: "success" | "error") => voi
     fetchAll();
   }, [fetchAll]);
 
-  const approveReview = async (id: string, approve: boolean) => {
+  const updateStatus = async (id: string, status: 'approved' | 'rejected' | 'pending') => {
     setUpdating(id);
     try {
-      const { error } = await adminClient
-        .from("reviews")
-        .update({ is_approved: approve })
-        .eq("id", id);
+      const response = await fetch(`/api/reviews/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to update status");
+      
       showToast(
-        approve ? "Avis publié avec succès" : "Avis masqué avec succès",
+        status === 'approved' ? "Avis publié" : status === 'rejected' ? "Avis rejeté" : "Avis mis en attente",
         "success"
       );
       await fetchAll();
@@ -91,12 +98,12 @@ export function useReviews(showToast: (m: string, t: "success" | "error") => voi
   const deleteReview = async (id: string) => {
     setUpdating(id);
     try {
-      const { error } = await adminClient
-        .from("reviews")
-        .delete()
-        .eq("id", id);
+      const response = await fetch(`/api/reviews/${id}`, {
+        method: "DELETE"
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to delete");
+      
       showToast("Avis supprimé définitivement", "success");
       await fetchAll();
     } catch (err: any) {
@@ -106,13 +113,13 @@ export function useReviews(showToast: (m: string, t: "success" | "error") => voi
     }
   };
 
-  const pendingCount = reviews.filter((r) => !r.is_approved).length;
+  const pendingCount = reviews.filter((r) => r.status === 'pending').length;
 
   return {
     reviews,
     loading,
     updating,
-    approveReview,
+    updateStatus,
     deleteReview,
     pendingCount,
     refresh: fetchAll,

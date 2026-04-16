@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, CheckCircle, XCircle, Trash2, Star } from "lucide-react";
+import { Search, Filter, CheckCircle, XCircle, Trash2, Star, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { Review } from "@/hooks/admin/useReviews";
 
-type StatusFilter = "all" | "approved" | "pending";
+type StatusFilter = "all" | "approved" | "pending" | "rejected";
 
 interface ReviewsTableProps {
   reviews: Review[];
   updating: string | null;
-  onApprove: (id: string, approve: boolean) => void;
+  onUpdateStatus: (id: string, status: 'approved' | 'rejected' | 'pending') => void;
   onDelete: (id: string) => void;
 }
 
@@ -27,21 +27,19 @@ const StarRating = ({ rating }: { rating: number }) => (
   </div>
 );
 
-export function ReviewsTable({ reviews, updating, onApprove, onDelete }: ReviewsTableProps) {
+export function ReviewsTable({ reviews, updating, onUpdateStatus, onDelete }: ReviewsTableProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
-  const FILTERS: StatusFilter[] = ["all", "pending", "approved"];
+  const FILTERS: StatusFilter[] = ["all", "pending", "approved", "rejected"];
 
   const filtered = reviews.filter((r) => {
     const q = search.toLowerCase();
     const matchSearch =
       r.full_name.toLowerCase().includes(q) ||
-      r.comment.toLowerCase().includes(q);
-    const matchStatus =
-      statusFilter === "all" ||
-      (statusFilter === "approved" && r.is_approved) ||
-      (statusFilter === "pending" && !r.is_approved);
+      (r.comment_fr?.toLowerCase().includes(q) ?? false) ||
+      (r.comment_ar?.toLowerCase().includes(q) ?? false);
+    const matchStatus = statusFilter === "all" || r.status === statusFilter;
     return matchSearch && matchStatus;
   });
 
@@ -74,7 +72,7 @@ export function ReviewsTable({ reviews, updating, onApprove, onDelete }: Reviews
                   : "bg-card text-muted-foreground border-border hover:border-[color-mix(in_srgb,var(--foreground)_20%,transparent)]"
               }`}
             >
-              {f === "all" ? "Tous" : f === "approved" ? "Approuvés" : "En attente"}
+              {f === "all" ? "Tous" : f === "approved" ? "Approuvés" : f === "pending" ? "En attente" : "Rejetés"}
             </button>
           ))}
         </div>
@@ -86,7 +84,7 @@ export function ReviewsTable({ reviews, updating, onApprove, onDelete }: Reviews
           <table className="w-full text-left text-sm">
             <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] border-b border-border text-muted-foreground font-medium text-[11px] uppercase tracking-wider">
               <tr>
-                <th className="px-6 py-4">Client</th>
+                <th className="px-6 py-4">Client / Produit</th>
                 <th className="px-6 py-4">Avis</th>
                 <th className="px-6 py-4">Note</th>
                 <th className="px-6 py-4">Date</th>
@@ -100,8 +98,20 @@ export function ReviewsTable({ reviews, updating, onApprove, onDelete }: Reviews
                 return (
                   <tr key={r.id} className="hover:bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] transition-colors group">
                     <td className="px-6 py-5">
-                      <div>
+                      <div className="flex flex-col gap-1">
                         <p className="font-bold text-foreground text-sm">{r.full_name}</p>
+                        {r.products && (
+                          <div className="flex items-center gap-2">
+                             <div className="w-6 h-8 rounded bg-muted/50 overflow-hidden border border-border/50">
+                                {r.products.product_images?.[0]?.image_url && (
+                                  <img src={r.products.product_images[0].image_url} alt="" className="w-full h-full object-cover" />
+                                )}
+                             </div>
+                             <p className="text-[9px] text-taupe font-bold uppercase tracking-tighter truncate max-w-[100px]">
+                                {r.products.name_fr}
+                             </p>
+                          </div>
+                        )}
                         {r.email && (
                           <p className="text-[10px] text-muted-foreground mt-0.5">{r.email}</p>
                         )}
@@ -119,11 +129,6 @@ export function ReviewsTable({ reviews, updating, onApprove, onDelete }: Reviews
                             {r.comment_ar}
                           </p>
                         )}
-                        {!r.comment_fr && !r.comment_ar && (
-                          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                            "{r.comment}"
-                          </p>
-                        )}
                       </div>
                     </td>
                     <td className="px-6 py-5">
@@ -136,44 +141,50 @@ export function ReviewsTable({ reviews, updating, onApprove, onDelete }: Reviews
                       </span>
                     </td>
                     <td className="px-6 py-5">
-                      {r.is_approved ? (
+                      {r.status === 'approved' ? (
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary border border-[color-mix(in_srgb,var(--primary)_20%,transparent)] rounded-lg text-[9px] font-black uppercase tracking-widest">
-                          <span className="w-1.5 h-1.5 bg-primary rounded-full" />
+                          <CheckCircle size={10} />
                           Approuvé
                         </span>
+                      ) : r.status === 'rejected' ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] text-danger border border-[color-mix(in_srgb,var(--danger)_20%,transparent)] rounded-lg text-[9px] font-black uppercase tracking-widest">
+                          <XCircle size={10} />
+                          Rejeté
+                        </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-muted text-muted-foreground border border-border rounded-lg text-[9px] font-black uppercase tracking-widest animate-pulse">
-                          <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full" />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-muted text-muted-foreground border border-border rounded-lg text-[9px] font-black uppercase tracking-widest">
+                          <Clock size={10} />
                           En attente
                         </span>
                       )}
                     </td>
                     <td className="px-6 py-5 text-right">
                       <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {r.is_approved ? (
+                        {r.status !== 'approved' && (
                           <button
-                            onClick={() => onApprove(r.id, false)}
+                            onClick={() => onUpdateStatus(r.id, 'approved')}
                             disabled={isUpdating}
-                            title="Masquer l'avis"
-                            className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all disabled:opacity-40"
-                          >
-                            <XCircle size={16} />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => onApprove(r.id, true)}
-                            disabled={isUpdating}
-                            title="Approuver l'avis"
-                            className="p-2 text-muted-foreground hover:text-primary hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] rounded-lg transition-all disabled:opacity-40"
+                            title="Approuver"
+                            className="p-2 text-muted-foreground hover:text-primary hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] rounded-lg transition-all"
                           >
                             <CheckCircle size={16} />
+                          </button>
+                        )}
+                        {r.status !== 'rejected' && (
+                          <button
+                            onClick={() => onUpdateStatus(r.id, 'rejected')}
+                            disabled={isUpdating}
+                            title="Rejeter"
+                            className="p-2 text-muted-foreground hover:text-danger hover:bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] rounded-lg transition-all"
+                          >
+                            <XCircle size={16} />
                           </button>
                         )}
                         <button
                           onClick={() => onDelete(r.id)}
                           disabled={isUpdating}
                           title="Supprimer définitivement"
-                          className="p-2 text-muted-foreground hover:text-danger hover:bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] rounded-lg transition-all disabled:opacity-40"
+                          className="p-2 text-muted-foreground hover:text-danger hover:bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] rounded-lg transition-all"
                         >
                           <Trash2 size={16} />
                         </button>

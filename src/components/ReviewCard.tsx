@@ -5,7 +5,6 @@ import { Star, Calendar, CheckCircle2, ThumbsUp, ArrowRight } from "lucide-react
 import { motion } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
-import { supabase } from "@/utils/supabase/client";
 
 interface Review {
   id: string;
@@ -20,6 +19,7 @@ interface Review {
   product_id?: string;
   is_verified?: boolean;
   is_approved?: boolean;
+  status?: string;
   helpful_count?: number;
 }
 
@@ -71,12 +71,11 @@ export function ReviewCard({ review, product }: ReviewCardProps) {
     setHasVoted(true);
 
     try {
-      const { error } = await supabase
-        .from("reviews")
-        .update({ helpful_count: (review.helpful_count || 0) + 1 })
-        .eq("id", review.id);
+      const response = await fetch(`/api/reviews/${review.id}/helpful`, {
+        method: "POST"
+      });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to update");
     } catch (err) {
       console.error("Error updating helpful count:", err);
       // Rollback on error
@@ -115,7 +114,7 @@ export function ReviewCard({ review, product }: ReviewCardProps) {
             <div className="space-y-1">
                <p className={`font-bold tracking-wide text-lg text-foreground flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                  {review.user || review.full_name}
-                 {(review.is_verified || review.is_approved) && (
+                 {(review.is_verified || review.is_approved || review.status === 'approved') && (
                    <span className="text-[10px] uppercase tracking-[0.2em] font-black text-[#00487A] bg-[#00487A]/10 px-2 py-0.5 rounded-full hidden xs:inline-block">
                       {t("verified")}
                    </span>

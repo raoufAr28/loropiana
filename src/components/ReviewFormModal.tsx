@@ -54,18 +54,22 @@ export function ReviewFormModal({ isOpen, onClose, products }: ReviewFormModalPr
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("reviews").insert({
-        full_name: form.full_name,
-        email: form.email || null,
-        rating: form.rating,
-        comment_fr: form.comment_fr || (locale === 'ar' ? "" : form.comment_fr),
-        comment_ar: form.comment_ar || (locale === 'fr' ? "" : form.comment_ar),
-        product_id: form.product_id || null,
-        locale: locale,
-        is_approved: false
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: form.full_name,
+          email: form.email || null,
+          rating: form.rating,
+          comment_fr: form.comment_fr || "",
+          comment_ar: form.comment_ar || "",
+          product_id: form.product_id || null,
+          locale: locale
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Failed to submit");
+      
       setSubmitted(true);
       setTimeout(() => {
         onClose();

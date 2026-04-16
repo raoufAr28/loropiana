@@ -20,17 +20,17 @@ export function Footer() {
             L'élégance redéfinie. Découvrez notre collection exclusive avec des matériaux nobles et un savoir-faire inégalé.
           </p>
         </div>
-        
+
         <div>
           <h4 className="font-bold mb-6 uppercase text-xs tracking-widest text-foreground/80">Liens Rapides</h4>
           <ul className="flex flex-col gap-4 text-sm text-muted-foreground">
             <li><Link href={`/${locale}`} className="hover:text-secondary transition-colors">Accueil</Link></li>
             <li><Link href={`/${locale}/shop`} className="hover:text-secondary transition-colors">Boutique</Link></li>
-            <li><Link href={`/${locale}/contact`} className="hover:text-secondary transition-colors">À propos</Link></li>
+            <li><Link href={`/${locale}/contact`} className="hover:text-secondary transition-colors">Reviews</Link></li>
             <li><Link href={`/${locale}/contact`} className="hover:text-secondary transition-colors">Contact</Link></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="font-bold mb-6 uppercase text-xs tracking-widest text-foreground/80">Légal</h4>
           <ul className="flex flex-col gap-4 text-sm text-muted-foreground">
@@ -39,20 +39,10 @@ export function Footer() {
             <li><a href="#" className="hover:text-secondary transition-colors">Livraison & Retours</a></li>
           </ul>
         </div>
-        
+
         <div className="flex flex-col gap-6">
           <h4 className="font-bold uppercase text-xs tracking-widest text-foreground/80">Newsletter</h4>
           <p className="text-sm text-muted-foreground">Abonnez-vous pour recevoir nos dernières actualités et invitations privées.</p>
-          <div className="flex group focus-within:shadow-glow transition-shadow duration-500 rounded-full border border-border bg-card/50 dark:bg-card/30 backdrop-blur-md overflow-hidden p-1">
-            <input 
-              type="email" 
-              placeholder="Votre email" 
-              className="bg-transparent px-4 py-2 w-full focus:outline-none text-sm" 
-            />
-            <button className="bg-foreground text-background px-6 py-2 rounded-full uppercase text-xs font-bold tracking-wider hover:scale-105 transition-transform">
-              →
-            </button>
-          </div>
         </div>
       </div>
 

@@ -9,11 +9,11 @@ interface ReviewsModuleProps {
 }
 
 export function ReviewsModule({ showToast }: ReviewsModuleProps) {
-  const { reviews, loading, updating, approveReview, deleteReview } =
+  const { reviews, loading, updating, updateStatus, deleteReview } =
     useReviews(showToast);
 
-  const pendingCount = reviews.filter((r) => !r.is_approved).length;
-  const approvedCount = reviews.filter((r) => r.is_approved).length;
+  const pendingCount = reviews.filter((r) => r.status === 'pending').length;
+  const approvedCount = reviews.filter((r) => r.status === 'approved').length;
 
   if (loading) {
     return (
@@ -60,7 +60,7 @@ export function ReviewsModule({ showToast }: ReviewsModuleProps) {
       <ReviewsTable
         reviews={reviews}
         updating={updating}
-        onApprove={approveReview}
+        onUpdateStatus={updateStatus}
         onDelete={deleteReview}
       />
     </div>
