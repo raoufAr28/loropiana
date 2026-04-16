@@ -39,7 +39,12 @@ export default function LoginPage() {
 
     if (user) {
       // 1. Check direct whitelist
-      const isAdminEmail = user.email === "tamerdakhoucho@gmail.com";
+      const adminEmails = [
+        "raoufarioua96@gmail.com",
+        "tamerdakhoucho@gmail.com"
+      ];
+
+      const isAdminEmail = adminEmails.includes((user.email || "").trim().toLowerCase());
 
       // 2. Check profile role in database
       const { data: profile } = await supabase
