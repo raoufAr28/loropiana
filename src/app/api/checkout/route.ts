@@ -16,17 +16,22 @@ async function sendTelegramNotification(order: any, baseUrl: string) {
     return;
   }
 
+  const shipping = order.shipping_address || {};
+  const totalQuantity = order.items_count || "N/A";
+
   const message = `
-🛎️ <b>Nouvelle Commande Reçue !</b>
+🛎️ <b>Nouvelle Commande Loro Piana</b>
 
-<b>ID de Commande :</b> <code>${order.id}</code>
-<b>Montant Total :</b> ${order.total_amount} DZD
-<b>Méthode de Paiement :</b> Paiement à la livraison
+👤 <b>Client :</b> ${shipping.firstName} ${shipping.lastName}
+📞 <b>Téléphone :</b> ${shipping.phone || 'N/A'}
+📍 <b>Wilaya :</b> ${shipping.wilaya || 'N/A'}
+🏙️ <b>Commune :</b> ${shipping.commune || 'N/A'}
+🏠 <b>Adresse :</b> ${shipping.address || 'N/A'}
 
-<b>Détails du Client :</b>
-📧 Email : ${order.guest_email || 'N/A'}
-📞 Téléphone : ${order.shipping_address?.phone || 'N/A'}
-📍 Ville : ${order.shipping_address?.city || 'N/A'}, ${order.shipping_address?.wilaya || ''}
+📦 <b>Type Livraison :</b> ${order.delivery_type === 'domicile' ? 'À Domicile' : 'Bureau / Point Relais'}
+💰 <b>Frais Livraison :</b> ${order.shipping_fee} DZD
+💵 <b>Montant Total :</b> <b>${order.total_amount} DZD</b>
+🔢 <b>Quantité Totale :</b> ${totalQuantity}
 
 🔗 <a href="${baseUrl}/fr/admin">Accéder au Dashboard Admin</a>
   `.trim();
@@ -56,7 +61,7 @@ async function sendTelegramNotification(order: any, baseUrl: string) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { items, email, shipping_address, total_amount } = body;
+    const { items, email, shipping_address, total_amount, delivery_type, shipping_fee } = body;
 
     console.log('[CHECKOUT_PAYLOAD_RECEIVED]', {
       email,
@@ -83,12 +88,14 @@ export async function POST(req: Request) {
       .from('orders')
       .insert({
         guest_email: email,
-        user_id: body.user_id || null, // Capture user_id if provided
+        user_id: body.user_id || null, 
         total_amount: total_amount,
         shipping_address: shipping_address,
         payment_method: 'cash_on_delivery',
         payment_status: 'pending',
         status: 'pending',
+        delivery_type: delivery_type || 'domicile',
+        shipping_fee: shipping_fee || 0
       })
       .select()
       .single();
@@ -133,7 +140,16 @@ export async function POST(req: Request) {
       baseUrl = new URL(req.url).origin;
     } catch(e) {}
     
-    await sendTelegramNotification(order, baseUrl);
+    // Add item count for notification
+    const totalQty = items.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0);
+    const orderWithDetails = { 
+      ...order, 
+      items_count: totalQty,
+      delivery_type: delivery_type,
+      shipping_fee: shipping_fee
+    };
+
+    await sendTelegramNotification(orderWithDetails, baseUrl);
 
     return NextResponse.json({ 
       success: true, 

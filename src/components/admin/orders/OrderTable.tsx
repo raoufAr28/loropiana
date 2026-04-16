@@ -1,25 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Eye, Calendar, Hash, Filter, CreditCard, Mail, CheckCircle, XCircle } from "lucide-react";
+import { Search, Eye, Calendar, Hash, Filter, CreditCard, Mail, CheckCircle, XCircle, Trash2 } from "lucide-react";
 import { format, isAfter, subMinutes } from "date-fns";
 import { formatPrice } from "@/utils/currency";
 import { Order, OrderStatus } from "@/hooks/admin/useOrders";
 import { StatusBadge } from "../StatusBadge";
+import { DeleteConfirmationModal } from "../DeleteConfirmationModal";
 
 interface OrderTableProps {
   orders: Order[];
   onView: (o: Order) => void;
   onUpdateStatus: (id: string, s: OrderStatus) => void;
+  onDelete: (id: string) => void;
   updating: boolean;
   locale: string;
 }
 
 const STATUS_FILTERS: (OrderStatus | 'all')[] = ['all', 'pending', 'confirmed', 'cancelled'];
 
-export function OrderTable({ orders, onView, onUpdateStatus, updating, locale }: OrderTableProps) {
+export function OrderTable({ orders, onView, onUpdateStatus, onDelete, updating, locale }: OrderTableProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const filtered = orders.filter((o) => {
     const searchValue = search.toLowerCase();
@@ -30,9 +33,16 @@ export function OrderTable({ orders, onView, onUpdateStatus, updating, locale }:
     return matchesSearch && matchesStatus;
   });
 
+  const handleDeleteConfirm = () => {
+    if (deletingId) {
+      onDelete(deletingId);
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      {/* Search & Filters */}
+      {/* ... (rest of the search & filters UI) ... */}
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
         <div className="relative group w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-foreground transition-colors" size={18} />
@@ -65,69 +75,58 @@ export function OrderTable({ orders, onView, onUpdateStatus, updating, locale }:
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] border-b border-border text-muted-foreground font-medium">
+            <thead className="bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] border-b border-border text-muted-foreground font-medium text-[10px] uppercase tracking-[0.2em]">
               <tr>
-                <th className="px-6 py-4">Reference</th>
-                <th className="px-6 py-4">Customer</th>
-                <th className="px-6 py-4">Payment</th>
+                <th className="px-6 py-4">Name</th>
+                <th className="px-6 py-4">Phone</th>
+                <th className="px-6 py-4">Product</th>
+                <th className="px-6 py-4">Price</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Order Date</th>
-                <th className="px-6 py-4">Total</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-6 py-4">Tracking</th>
+                <th className="px-6 py-4 text-right">Details</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((o) => {
                 const isNew = isAfter(new Date(o.created_at), subMinutes(new Date(), 15));
-                
+                const shipping = o.shipping_address || {};
+                const name = `${shipping.firstName || ''} ${shipping.lastName || ''}`.trim() || 'Guest';
+                const phone = shipping.phone || 'N/A';
+                const productSummary = o.order_items?.map((i: any) => 
+                  `${i.products?.name_fr} (x${i.quantity})`
+                ).join(', ') || 'Processing...';
+
                 return (
                   <tr key={o.id} className={`hover:bg-[color-mix(in_srgb,var(--muted)_50%,transparent)] transition-colors group relative ${isNew ? 'bg-[color-mix(in_srgb,var(--muted)_30%,transparent)]' : ''}`}>
                     <td className="px-6 py-6 border-l-2 border-transparent group-hover:border-primary">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-background transition-all relative">
-                          <Hash size={14} />
-                          {isNew && (
-                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-danger rounded-full border-2 border-card animate-pulse" />
-                          )}
-                        </div>
-                        <div className="flex flex-col">
-                           <span className="font-bold text-foreground leading-none">#{String(o.id).toUpperCase()}</span>
-                           {isNew && <span className="text-[8px] font-black text-danger uppercase tracking-widest mt-1 opacity-80">New Order</span>}
-                        </div>
-                      </div>
+                      <span className="font-bold text-foreground">{name}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <Mail size={12} className="text-muted-foreground" />
-                        <p className="font-semibold text-foreground lowercase truncate max-w-[150px]">{o.guest_email || "Registered User"}</p>
-                      </div>
+                      <span className="text-xs font-medium tabular-nums">{phone}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5">
-                          <CreditCard size={12} className="text-muted-foreground" />
-                          <span className="text-[10px] font-black uppercase tracking-tight text-foreground">
-                            {o.payment_method?.replace(/_/g, ' ') || 'N/A'}
-                          </span>
-                        </div>
-                        <div className={`text-[9px] font-bold px-1.5 py-0.5 rounded inline-block uppercase tracking-wider ${o.payment_status === 'paid' ? 'bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] text-primary' : 'bg-muted text-muted-foreground'
-                          }`}>
-                          {o.payment_status || 'pending'}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={o.status} />
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Calendar size={14} className="opacity-40" />
-                        <span className="text-xs font-medium">{format(new Date(o.created_at), 'dd MMM, HH:mm')}</span>
-                      </div>
+                      <p className="text-[10px] font-medium text-muted-foreground truncate max-w-[150px]" title={productSummary}>
+                        {productSummary}
+                      </p>
                     </td>
                     <td className="px-6 py-4">
                       <span className="font-black text-foreground">
                         {formatPrice(o.total_amount, locale)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1">
+                        <StatusBadge status={o.status} />
+                        {o.delivery_status && (
+                          <span className={`text-[8px] font-black uppercase tracking-widest ${o.delivery_status === 'created' ? 'text-primary' : 'text-danger'}`}>
+                            DRV: {o.delivery_status}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-[10px] font-black text-foreground tabular-nums tracking-widest">
+                        {o.tracking_number || o.tracking_id || '-'}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -152,6 +151,16 @@ export function OrderTable({ orders, onView, onUpdateStatus, updating, locale }:
                             </button>
                           </>
                         )}
+                        {o.status === 'cancelled' && (
+                          <button 
+                            onClick={() => setDeletingId(o.id)}
+                            disabled={updating}
+                            className="p-2 text-muted-foreground hover:text-danger hover:bg-[color-mix(in_srgb,var(--danger)_10%,transparent)] rounded-lg transition-all opacity-0 group-hover:opacity-100 disabled:opacity-30"
+                            title={locale === 'fr' ? "Supprimer définitivement" : "حذف نهائي"}
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
                         <button
                           onClick={() => onView(o)}
                           className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all"
@@ -175,6 +184,18 @@ export function OrderTable({ orders, onView, onUpdateStatus, updating, locale }:
           </table>
         </div>
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={!!deletingId}
+        onClose={() => setDeletingId(null)}
+        onConfirm={handleDeleteConfirm}
+        title={locale === 'fr' ? "Supprimer définitivement" : "حذف نهائي"}
+        message={locale === 'fr' 
+          ? "Cette commande annulée sera supprimée définitivement. Continuer ?" 
+          : "سيتم حذف هذه الطلبية الملغاة نهائيا. هل تريد المتابعة؟"
+        }
+        loading={updating}
+      />
     </div>
   );
 }

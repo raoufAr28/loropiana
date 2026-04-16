@@ -28,7 +28,9 @@
     "write_review": "كتابة مراجعة",
     "filter_product": "البحث حسب المنتج...",
     "all_products": "جميع المنتجات",
-    "buy_now": "اشتري مجدداً"
+    "buy_now": "اشتري مجدداً",
+    "verified": "مؤكد",
+    "helpful": "مفيد؟"
   },
   "Home": {
     "hero_title": "إعادة تعريف الأناقة",

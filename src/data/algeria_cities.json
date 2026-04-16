@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "Adrar",
+    "communes": ["Adrar", "Tamest", "Charouine", "Reggane", "In Zghmir", "Tit", "Tsabit", "Timimoun"]
+  },
+  {
+    "id": 2,
+    "name": "Chlef",
+    "communes": ["Chlef", "Tenes", "Boukadir", "Oued Fodda", "Ouled Fares", "Chettia", "Moussadek"]
+  },
+  {
+    "id": 6,
+    "name": "Béjaïa",
+    "communes": ["Béjaïa", "Amizour", "Seddouk", "Akbou", "El Kseur", "Barbacha", "Sidi Aich"]
+  },
+  {
+    "id": 9,
+    "name": "Blida",
+    "communes": ["Blida", "Boufarik", "Ouled Yaïch", "Beni Mered", "Bouarfa", "Chréa", "El Affroun"]
+  },
+  {
+    "id": 16,
+    "name": "Alger",
+    "communes": ["Alger Centre", "Sidi M'Hamed", "El Madania", "Belouizdad", "Bab El Oued", "Bologhine", "Casbah", "Oued Koriche", "Bir Mourad Raïs", "Birmandreis", "Hydra", "El Biar", "Bouzareah", "Ben Aknoun", "Dely Ibrahim", "Hammamet", "Raïs Hamidou", "Zeralda", "Staoueli", "Ain Benian", "Cheraga", "Beni Messous", "Bains Romains", "Douera", "Baba Hassen", "Khraicia", "Saoula", "Draria", "El Achour", "Baraki", "Les Eucalyptus", "Bentalha", "Sidi Moussa", "Birkhadem", "Kouba", "Mohammadia", "Hussein Dey", "Magharia", "Bourouba", "El Harrach", "Oued Smar", "Bachdjerrah", "Bordj El Kiffan", "Bab Ezzouar", "Dar El Beïda", "Rouiba", "Reghaïa", "Ain Taya", "Bordj El Bahri", "El Marsa", "Haraoua"]
+  },
+  {
+    "id": 19,
+    "name": "Sétif",
+    "communes": ["Sétif", "Ain El Kebira", "Beni Aziz", "El Eulma", "Bir El Arch", "Guenzet", "Hammam Guergour"]
+  },
+  {
+    "id": 25,
+    "name": "Constantine",
+    "communes": ["Constantine", "Hamma Bouziane", "El Khroub", "Didouche Mourad", "Zighoud Youcef", "Ain Smara"]
+  },
+  {
+    "id": 31,
+    "name": "Oran",
+    "communes": ["Oran", "Gdyel", "Bir El Djir", "Hassi Bounif", "Es Senia", "Arzew", "Bethioua", "Mers El Kébir", "Aïn El Turk"]
+  },
+  {
+    "id": 35,
+    "name": "Boumerdès",
+    "communes": ["Boumerdès", "Boudouaou", "Afir", "Bordj Menaïel", "Baghlia", "Sidi Daoud", "Naciria"]
+  },
+  {
+    "id": 42,
+    "name": "Tipaza",
+    "communes": ["Tipaza", "Menaceur", "Cherchell", "Damous", "Gouraya", "Hadjout", "Kolea", "Bou Ismaïl"]
+  }
+]

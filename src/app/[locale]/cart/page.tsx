@@ -68,16 +68,16 @@ export default function CartPage() {
               <span>Sous-total</span>
               <span>DZD{getTotalPrice().toFixed(2)}</span>
             </div>
-            <div className="flex justify-between mb-6 text-taupe">
+            <div className="flex justify-between mb-6 text-taupe text-sm">
               <span>Livraison</span>
-              <span>Offerte</span>
+              <span className="text-right ml-4">Calculée à l'étape suivante</span>
             </div>
             <div className="border-t border-gray-200 dark:border-gray-800 my-6 pt-6 flex justify-between font-bold text-xl">
               <span>Total</span>
               <span>DZD{getTotalPrice().toFixed(2)}</span>
             </div>
             <Link 
-              href={`/${locale}/checkout`}
+              href={`/${locale}/checkout-direct`}
               className="w-full block text-center bg-foreground text-background py-4 font-bold uppercase tracking-widest hover:bg-[#383838] dark:hover:bg-[#ccc] transition-colors"
             >
               Passer la commande

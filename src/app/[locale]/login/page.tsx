@@ -26,18 +26,38 @@ export default function LoginPage() {
     setLoading(true);
     setErrorMsg("");
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data: { user }, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) {
       setErrorMsg(error.message);
-    } else {
-      if (email === "raoufarioua96@gmail.com") {
+      setLoading(false);
+      return;
+    }
+
+    if (user) {
+      // 1. Check direct whitelist
+      const isAdminEmail = user.email === "raoufarioua96@gmail.com";
+      
+      // 2. Check profile role in database
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (isAdminEmail || profile?.role === 'admin') {
         router.push(`/${locale}/admin`);
       } else {
-        router.push(`/${locale}`);
+        // Not an admin: Force Sign Out + Show Error
+        await supabase.auth.signOut();
+        setErrorMsg(
+          isRTL 
+            ? 'هذا الدخول مخصص للإدارة فقط' 
+            : 'Cet accès est réservé à l’administration'
+        );
       }
     }
     setLoading(false);
@@ -157,6 +177,13 @@ export default function LoginPage() {
                 </motion.div>
               )}
 
+              {/* Admin-only Hint */}
+              <div className="text-center py-2">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-taupe/60">
+                   {isRTL ? 'الدخول مخصص للإدارة فقط' : 'Accès réservé à l’administration'}
+                </p>
+              </div>
+
               <motion.button
                 variants={itemVariants}
                 type="submit"
@@ -177,19 +204,6 @@ export default function LoginPage() {
               </motion.button>
             </form>
           </div>
-
-          {/* Footer */}
-          <motion.div variants={itemVariants} className="mt-12 text-center">
-            <p className="text-taupe uppercase tracking-[0.2em] text-[10px] font-bold">
-              {isRTL ? 'ليس لديك حساب؟' : 'Pas encore de compte ?'}
-            </p>
-            <Link
-              href={`/${locale}/register`}
-              className="inline-block mt-3 text-xs uppercase font-bold tracking-widest border-b border-foreground/20 pb-1 hover:border-foreground transition-all"
-            >
-              {isRTL ? 'أنشئ حسابك الآن' : 'Créer un compte'}
-            </Link>
-          </motion.div>
         </motion.div>
       </div>
     </div>

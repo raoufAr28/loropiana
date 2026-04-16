@@ -108,9 +108,23 @@ export function ReviewsTable({ reviews, updating, onApprove, onDelete }: Reviews
                       </div>
                     </td>
                     <td className="px-6 py-5 max-w-xs">
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        "{r.comment}"
-                      </p>
+                      <div className="space-y-1">
+                        {r.comment_fr && (
+                          <p className="text-sm text-foreground line-clamp-2 italic leading-relaxed">
+                            " {r.comment_fr} "
+                          </p>
+                        )}
+                        {r.comment_ar && (
+                          <p className="text-[10px] text-taupe block font-medium line-clamp-1" dir="rtl">
+                            {r.comment_ar}
+                          </p>
+                        )}
+                        {!r.comment_fr && !r.comment_ar && (
+                          <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+                            "{r.comment}"
+                          </p>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-5">
                       <StarRating rating={r.rating} />

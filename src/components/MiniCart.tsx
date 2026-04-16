@@ -282,7 +282,7 @@ export function MiniCart() {
                 
                 <div className="flex flex-col gap-4">
                   <Link 
-                    href={`/${locale}/checkout`}
+                    href={`/${locale}/checkout-direct`}
                     onClick={() => setIsOpen(false)}
                     className="group relative w-full overflow-hidden text-center bg-primary text-primary-foreground py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs transition-all hover:opacity-90 active:scale-[0.98]"
                   >

@@ -34,7 +34,17 @@ export default function OrderDetailsPage() {
           router.push(`/${locale}/orders`);
           return;
         }
-        setOrder(data);
+        // Cast numeric fields to prevent NaN display
+        const safeOrder = {
+          ...data,
+          total_amount: Number(data.total_amount) || 0,
+          order_items: data.order_items?.map((item: any) => ({
+            ...item,
+            unit_price: Number(item.unit_price) || 0,
+            quantity: Number(item.quantity) || 1,
+          })),
+        };
+        setOrder(safeOrder);
       }
       setLoading(false);
     };

@@ -13,7 +13,7 @@ export function LayoutShell({ children }: LayoutShellProps) {
 
   // Login / Register pages stay completely bare (no nav)
   const isBareRoute =
-    pathname?.includes("/login") || pathname?.includes("/register");
+    pathname?.includes("/login");
 
   if (isBareRoute) {
     return <main className="min-h-screen">{children}</main>;

@@ -7,12 +7,23 @@ import { createClient } from "@supabase/supabase-js";
 export interface Review {
   id: string;
   full_name: string;
-  comment: string;
+  comment: string; // Keep for legacy/admin view
+  comment_fr: string;
+  comment_ar: string;
   rating: number;
   locale: string;
   is_approved: boolean;
+  is_verified?: boolean;
+  product_id?: string;
+  helpful_count?: number;
   email?: string;
   created_at: string;
+  products?: {
+    name_fr: string;
+    name_ar: string;
+    slug: string;
+    product_images?: { image_url: string }[];
+  };
 }
 
 // Admin client uses service role to bypass RLS and see ALL reviews
@@ -32,7 +43,15 @@ export function useReviews(showToast: (m: string, t: "success" | "error") => voi
       // Admin fetches ALL reviews regardless of approval status
       const { data, error } = await adminClient
         .from("reviews")
-        .select("*")
+        .select(`
+          *,
+          products(
+            name_fr,
+            name_ar,
+            slug,
+            product_images(image_url)
+          )
+        `)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

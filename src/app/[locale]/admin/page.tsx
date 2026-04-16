@@ -35,7 +35,14 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [stats, setStats] = useState({
-    revenue: { total: 0, confirmed: 0, today: 0, thisWeek: 0, thisMonth: 0 },
+    revenue: { 
+      product: 0,     // Net product revenue (total - shipping)
+      confirmed: 0,   // Net confirmed product revenue
+      today: 0, 
+      thisWeek: 0, 
+      thisMonth: 0,
+      shipping: 0     // Total shipping collected (confirmed)
+    },
     orders: { total: 0, pending: 0, confirmed: 0, cancelled: 0 },
     inventory: { total: 0, lowStock: 0 },
     reviews: { total: 0, pending: 0, approved: 0 }
@@ -107,7 +114,7 @@ const checkAdmin = async () => {
   const fetchGlobalData = async () => {
     try {
       const [{ data: allOrders }, { data: recentOrdersData }, { data: allReviews }, { count: productsCount }, { data: lowStockRes }] = await Promise.all([
-        supabase.from('orders').select('total_amount, status, created_at'),
+        supabase.from('orders').select('total_amount, shipping_fee, status, created_at'),
         supabase.from('orders').select('*, profiles(email)').order('created_at', { ascending: false }).limit(5),
         supabase.from('reviews').select('is_approved'),
         supabase.from('products').select('*', { count: 'exact', head: true }),
@@ -120,15 +127,20 @@ const checkAdmin = async () => {
       const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
       let revTotal = 0, revConfirmed = 0, revToday = 0, revWeek = 0, revMonth = 0;
+      let revShipping = 0; // Optional future metric: Total shipping collected
       let ordPending = 0, ordConfirmed = 0, ordCancelled = 0;
 
       (allOrders || []).forEach(o => {
-         const amount = Number(o.total_amount) || 0;
+         const total = Number(o.total_amount ?? 0);
+         const shipping = Number(o.shipping_fee ?? 0);
+         const amount = Math.max(0, total - shipping); // Net Product Revenue
          const d = new Date(o.created_at);
+         
          revTotal += amount;
          
          if (o.status === 'confirmed') {
             revConfirmed += amount;
+            revShipping += shipping;
             if (d >= today) revToday += amount;
             if (d >= firstDayOfWeek) revWeek += amount;
             if (d >= firstDayOfMonth) revMonth += amount;
@@ -147,13 +159,23 @@ const checkAdmin = async () => {
       });
 
       setStats({
-        revenue: { total: revTotal, confirmed: revConfirmed, today: revToday, thisWeek: revWeek, thisMonth: revMonth },
+        revenue: { 
+          product: revTotal, 
+          confirmed: revConfirmed, 
+          today: revToday, 
+          thisWeek: revWeek, 
+          thisMonth: revMonth,
+          shipping: revShipping
+        },
         orders: { total: (allOrders || []).length, pending: ordPending, confirmed: ordConfirmed, cancelled: ordCancelled },
         inventory: { total: productsCount || 0, lowStock: (lowStockRes || []).length },
         reviews: { total: (allReviews || []).length, pending: revPending, approved: revApproved }
       });
       
-      setRecentOrders(recentOrdersData || []);
+      setRecentOrders((recentOrdersData || []).map(o => ({
+        ...o,
+        total_amount: Number(o.total_amount) || 0,
+      })));
       setLowStockItems(lowStockRes || []);
       setPendingOrdersCount(ordPending);
       setPendingReviewsCount(revPending);

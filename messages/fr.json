@@ -57,7 +57,9 @@
     "write_review": "Rédiger un avis",
     "filter_product": "Rechercher par produit...",
     "all_products": "Tous les produits",
-    "buy_now": "Acheter à nouveau"
+    "buy_now": "Acheter à nouveau",
+    "verified": "Vérifié",
+    "helpful": "Utile ?"
   },
   "Orders": {
     "my_orders": "Mes Commandes",

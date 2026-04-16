@@ -3,9 +3,11 @@
 import { useCartStore } from "@/store/useCartStore";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { formatPrice } from "@/utils/currency";
 import { supabase } from "@/utils/supabase/client";
+import { getShippingFee } from "@/utils/delivery/pricing";
+import { WILAYAS } from "@/utils/delivery/wilayas";
 
 export default function CheckoutPage() {
   const t = useTranslations("Checkout");
@@ -33,14 +35,36 @@ export default function CheckoutPage() {
     email: "",
     phone: "",
     address: "",
+    wilaya: "",
+    commune: "",
     city: "",
     postalCode: "",
     country: "Algérie",
-    note: ""
+    note: "",
+    deliveryType: "domicile" as "domicile" | "bureau"
   });
 
+  const currentWilayaCode = useMemo(() => 
+    WILAYAS.find(w => w.name === formData.wilaya)?.code,
+  [formData.wilaya]);
+
+  const shippingFee = useMemo(() => 
+    getShippingFee(currentWilayaCode, formData.deliveryType), 
+  [currentWilayaCode, formData.deliveryType]);
+
+  const baseDomicileFee = useMemo(() => getShippingFee(currentWilayaCode, 'domicile'), [currentWilayaCode]);
+  const baseBureauFee = useMemo(() => getShippingFee(currentWilayaCode, 'bureau'), [currentWilayaCode]);
+
+  const finalTotal = getTotalPrice() + shippingFee;
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: value,
+      ...(name === 'wilaya' ? { commune: "" } : {})
+    }));
   };
 
   const handleCheckout = async (e: React.FormEvent) => {
@@ -57,16 +81,23 @@ export default function CheckoutPage() {
           items,
           email: formData.email,
           user_id: userId, // Pass sub user_id
-          total_amount: getTotalPrice(),
+          total_amount: finalTotal,
+          delivery_type: formData.deliveryType,
+          shipping_fee: shippingFee,
           shipping_address: {
             firstName: formData.firstName,
             lastName: formData.lastName,
             phone: formData.phone,
+            email: formData.email,
             address: formData.address,
+            wilaya: formData.wilaya,
+            commune: formData.commune,
             city: formData.city,
             postalCode: formData.postalCode,
             country: formData.country,
-            note: formData.note
+            note: formData.note,
+            deliveryType: formData.deliveryType,
+            code_wilaya: WILAYAS.find(w => w.name === formData.wilaya)?.code
           }
         }),
       });
@@ -162,27 +193,65 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2">
-                <label className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground block ml-1">
-                  {locale === 'fr' ? "Adresse de Résidence" : "عنوان الإقامة"}
+              <div className="flex flex-col gap-6 p-6 glass-panel-heavy rounded-3xl border border-primary/20">
+                <label className="text-[10px] uppercase tracking-[0.2em] font-black text-primary block ml-1">
+                  {locale === 'fr' ? "Type de Livraison" : "نوع التوصيل"}
                 </label>
-                <input required name="address" value={formData.address} onChange={handleChange} className="luxury-input" placeholder="128 Rue de la Liberté" />
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, deliveryType: 'domicile' })}
+                    className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${formData.deliveryType === 'domicile' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                  >
+                    <span className="text-xs font-bold uppercase tracking-widest">{locale === 'fr' ? "À Domicile" : "توصيل للمنزل"}</span>
+                    <span className="text-[10px] font-black text-primary">{baseDomicileFee} DZD</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, deliveryType: 'bureau' })}
+                    className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${formData.deliveryType === 'bureau' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
+                  >
+                    <span className="text-xs font-bold uppercase tracking-widest">{locale === 'fr' ? "Bureau / Relais" : "مكتب / نقطة استلام"}</span>
+                    <span className="text-[10px] font-black text-primary">{baseBureauFee} DZD</span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground block ml-1">
-                    {locale === 'fr' ? "Code Postal" : "الرمز البريدي"}
+                    {locale === 'fr' ? "Wilaya" : "الولاية"}
                   </label>
-                  <input required name="postalCode" value={formData.postalCode} onChange={handleChange} className="luxury-input" placeholder="16000" />
+                  <select required name="wilaya" value={formData.wilaya} onChange={handleChange} className="luxury-input appearance-none bg-background">
+                    <option value="">{locale === 'fr' ? "Sélectionner..." : "اختر الولاية"}</option>
+                    {WILAYAS.map(w => <option key={w.code} value={w.name}>{w.name}</option>)}
+                  </select>
                 </div>
                 <div className="flex flex-col gap-2">
                   <label className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground block ml-1">
-                    {locale === 'fr' ? "Ville" : "المدينة"}
+                    {locale === 'fr' ? "Commune" : "البلدية"}
                   </label>
-                  <input required name="city" value={formData.city} onChange={handleChange} className="luxury-input" placeholder="Alger" />
+                  <input required name="commune" value={formData.commune} onChange={handleChange} className="luxury-input" placeholder="..." />
                 </div>
               </div>
+
+              {formData.deliveryType === 'domicile' && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground block ml-1">
+                    {locale === 'fr' ? "Adresse de Résidence" : "عنوان الإقامة"}
+                  </label>
+                  <input required name="address" value={formData.address} onChange={handleChange} className="luxury-input" placeholder="128 Rue de la Liberté" />
+                </div>
+              )}
+
+              {formData.deliveryType === 'bureau' && (
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-black text-muted-foreground block ml-1">
+                    {locale === 'fr' ? "Nom du Bureau / Point Relais (Optionnel)" : "اسم المكتب / نقطة الاستلام (اختياري)"}
+                  </label>
+                  <input name="address" value={formData.address} onChange={handleChange} className="luxury-input" placeholder="Bureau de Poste Central..." />
+                </div>
+              )}
 
               <div className="flex flex-col gap-2 text-muted-foreground">
                 <label className="text-[10px] uppercase tracking-[0.2em] font-black block ml-1">
@@ -247,13 +316,17 @@ export default function CheckoutPage() {
 
             <div className="space-y-4 pt-10 border-t border-border">
               <div className="flex justify-between text-muted-foreground text-xs uppercase tracking-widest font-bold">
+                <span>{locale === 'fr' ? "Sous-total" : "المجموع الفرعي"}</span>
+                <span className="font-inter">{formatPrice(getTotalPrice(), locale)}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground text-xs uppercase tracking-widest font-bold">
                 <span>{locale === 'fr' ? "Livraison" : "الشحن"}</span>
-                <span className="text-primary uppercase">{locale === 'fr' ? "Offerte" : "مجاني"}</span>
+                <span className="text-primary font-inter">+{formatPrice(shippingFee, locale)}</span>
               </div>
               <div className="flex justify-between font-black text-2xl pt-4 border-t border-border/50">
                 <span className="font-playfair tracking-widest uppercase">{locale === 'fr' ? "Total" : "الإجمالي"}</span>
                 <span className="text-gradient">
-                  {formatPrice(getTotalPrice(), locale)}
+                  {formatPrice(finalTotal, locale)}
                 </span>
               </div>
             </div>

@@ -18,7 +18,9 @@ export function OrdersModule({ showToast, locale }: OrdersModuleProps) {
     loading,
     updating,
     updateStatus,
-    fetchOrderItems
+    deleteOrder,
+    fetchOrderItems,
+    refresh
   } = useOrders(showToast);
 
   const [selected, setSelected] = useState<Order | null>(null);
@@ -43,6 +45,13 @@ export function OrdersModule({ showToast, locale }: OrdersModuleProps) {
     const success = await updateStatus(id, status);
     if (success && selected?.id === id) {
       setSelected(prev => prev ? { ...prev, status } : null);
+    }
+  };
+
+  const handlePermanentDelete = async (id: string) => {
+    const success = await deleteOrder(id);
+    if (success && selected?.id === id) {
+      setSelected(null);
     }
   };
 
@@ -75,6 +84,7 @@ export function OrdersModule({ showToast, locale }: OrdersModuleProps) {
         orders={orders}
         onView={handleViewDetails}
         onUpdateStatus={handleUpdateStatus}
+        onDelete={handlePermanentDelete}
         updating={updating}
         locale={locale}
       />
@@ -91,6 +101,9 @@ export function OrdersModule({ showToast, locale }: OrdersModuleProps) {
           <OrderDetails 
             order={selected}
             onUpdateStatus={(s) => handleUpdateStatus(selected.id, s)}
+            onDelete={() => handlePermanentDelete(selected.id)}
+            onRefresh={refresh}
+            showToast={showToast}
             updating={updating || itemsLoading}
             locale={locale}
           />

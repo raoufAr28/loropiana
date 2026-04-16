@@ -83,9 +83,8 @@ export function ProductCard({ product }: { product: Product }) {
       />
 
       <div className="relative z-10 glass-panel-heavy rounded-3xl p-3 md:p-4 overflow-hidden transition-all duration-300 group-hover:border-white/40 dark:group-hover:border-white/20">
+        {/* Image Container with 3D Pop */}
         <Link href={`/${locale}/product/${product.slug}`} className="block">
-
-          {/* Image Container with 3D Pop */}
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted mb-5 shadow-inner">
             {product.image_url ? (
               <motion.img
@@ -105,27 +104,33 @@ export function ProductCard({ product }: { product: Product }) {
               </div>
             )}
           </div>
+        </Link>
 
-          <div className="flex flex-col gap-1.5 px-2 pb-2" style={{ transform: "translateZ(20px)" }}>
+        {/* Content Section */}
+        <div className="flex flex-col gap-1.5 px-2 pb-2" style={{ transform: "translateZ(20px)" }}>
+          <Link href={`/${locale}/product/${product.slug}`} className="block">
             <span className="text-[10px] md:text-xs uppercase tracking-[0.2em] text-muted-foreground font-semibold">{product.category}</span>
             <h3 className="font-playfair text-lg md:text-xl leading-tight transition-colors group-hover:text-foreground/80 dark:group-hover:text-secondary mt-1 text-foreground">
               {product.name}
             </h3>
-            <div className="flex items-center justify-between mt-2">
-              <p className="font-bold tracking-wide text-foreground/90 font-inter">{formatPrice(product.price, locale)}</p>
-              {/* Quick Add Button is now a sibling of Link indirectly via relative placement */}
-            </div>
-          </div>
-        </Link>
+          </Link>
 
-        {/* Floating Quick Add Button moved OUTSIDE the Link to fix hydration error <a><button> nesting */}
-        <button
-          onClick={handleQuickAdd}
-          className="absolute bottom-6 right-6 md:bottom-8 md:right-8 z-20 flex items-center justify-center p-2 rounded-full border border-foreground/10 dark:border-white/10 text-muted-foreground hover:text-background hover:bg-foreground dark:hover:text-background dark:hover:bg-secondary transition-all shadow-sm"
-          aria-label={locale === 'ar' ? 'أضف إلى السلة' : 'Ajouter au panier'}
-        >
-          <Plus size={14} strokeWidth={3} />
-        </button>
+          <div className="flex items-center justify-between mt-3">
+             <Link href={`/${locale}/product/${product.slug}`} className="block">
+                <p className="font-bold tracking-wide text-foreground/90 font-inter">
+                  {formatPrice(product.price, locale)}
+                </p>
+             </Link>
+
+             <button
+               onClick={handleQuickAdd}
+               className="z-20 flex items-center justify-center p-2 rounded-full border border-foreground/10 dark:border-white/10 text-muted-foreground hover:text-background hover:bg-foreground dark:hover:text-background dark:hover:bg-secondary transition-all shadow-sm"
+               aria-label={locale === 'ar' ? 'أضف إلى السلة' : 'Ajouter au panier'}
+             >
+               <Plus size={14} strokeWidth={3} />
+             </button>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

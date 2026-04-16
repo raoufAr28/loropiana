@@ -25,7 +25,7 @@ export default function OrdersPage() {
           .select('*, order_items(count)')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
-        if (data) setOrders(data);
+        if (data) setOrders(data.map(o => ({ ...o, total_amount: Number(o.total_amount) || 0 })));
       }
       setLoading(false);
     };

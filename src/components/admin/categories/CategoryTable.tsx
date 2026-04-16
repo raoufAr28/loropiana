@@ -71,7 +71,7 @@ export function CategoryTable({ categories, onEdit, onDelete, locale }: Category
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                        <Hash size={14} className="text-muted-foreground" />
-                       <span className="text-sm font-bold text-foreground">{cat.products?.[0]?.count || 0}</span>
+                       <span className="text-sm font-bold text-foreground">-</span>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-right">
