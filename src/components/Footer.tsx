@@ -1,11 +1,16 @@
 "use client";
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+
 
 export function Footer() {
   const t = useTranslations('Navigation');
   const locale = useLocale();
+  const pathname = usePathname();
+  const isAdminPage = pathname.includes('/admin');
+  if (isAdminPage) return null;
 
   return (
     <footer className="relative w-full overflow-hidden bg-background text-foreground pt-24 pb-12">
@@ -26,7 +31,7 @@ export function Footer() {
           <ul className="flex flex-col gap-4 text-sm text-muted-foreground">
             <li><Link href={`/${locale}`} className="hover:text-secondary transition-colors">Accueil</Link></li>
             <li><Link href={`/${locale}/shop`} className="hover:text-secondary transition-colors">Boutique</Link></li>
-            <li><Link href={`/${locale}/contact`} className="hover:text-secondary transition-colors">Reviews</Link></li>
+            <li><Link href={`/${locale}/reviews`} className="hover:text-secondary transition-colors">Reviews</Link></li>
             <li><Link href={`/${locale}/contact`} className="hover:text-secondary transition-colors">Contact</Link></li>
           </ul>
         </div>
