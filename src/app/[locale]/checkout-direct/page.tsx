@@ -121,7 +121,7 @@ export default function CheckoutDirectPage() {
       <div className="grid lg:grid-cols-2 gap-20 items-start">
 
         {/* FORM */}
-        <div className="space-y-12">
+        <div className="space-y-12 mt-20 md:mt-10">
           <div className="space-y-4">
             <h2 className="text-4xl font-black uppercase tracking-tighter">
               {locale === 'fr' ? "Finalisation Express" : "إتمام الطلب السريع"}
@@ -188,17 +188,17 @@ export default function CheckoutDirectPage() {
               <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
                 {locale === 'fr' ? "Adresse complète" : "العنوان الكامل"}
               </label>
-              <textarea 
-                required={formData.deliveryType === 'domicile'} 
-                name="address" 
-                value={formData.address} 
-                onChange={handleChange as any} 
-                rows={3} 
-                className="luxury-input resize-none" 
-                placeholder={formData.deliveryType === 'bureau' 
+              <textarea
+                required={formData.deliveryType === 'domicile'}
+                name="address"
+                value={formData.address}
+                onChange={handleChange as any}
+                rows={3}
+                className="luxury-input resize-none"
+                placeholder={formData.deliveryType === 'bureau'
                   ? (locale === 'fr' ? "Facultatif (ex: point de repère, quartier...)" : "اختياري (مثال: معلم مميز، حي...)")
                   : "..."
-                } 
+                }
               />
             </div>
 
