@@ -5,12 +5,12 @@
  */
 export function formatPrice(price: number | string | null | undefined, locale: string): string {
   let amount = Number(price);
-  
+
   // Hande NaN or invalid numbers
   if (isNaN(amount) || amount === null || amount === undefined) {
     amount = 0;
   }
-  
+
   if (locale === 'ar') {
     // Arabic formatting: 12,500 دج
     return new Intl.NumberFormat('ar-DZ', {
@@ -27,7 +27,7 @@ export function formatPrice(price: number | string | null | undefined, locale: s
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
-  
+
   return `${formattedAmount} DZD`;
 }
 

@@ -44,11 +44,11 @@ export async function POST(req: Request) {
     // 2. Extract shipping fields
     const shipping = order.shipping_address || {};
     const firstName = (shipping.firstName || '').trim();
-    const lastName  = (shipping.lastName  || '').trim();
+    const lastName = (shipping.lastName || '').trim();
     const nom_client = `${firstName} ${lastName}`.trim();
-    const telephone  = (shipping.phone       || '').trim();
-    const commune    = (shipping.commune      || '').trim();
-    const address    = (shipping.address      || '').trim();
+    const telephone = (shipping.phone || '').trim();
+    const commune = (shipping.commune || '').trim();
+    const address = (shipping.address || '').trim();
     const code_wilaya = (shipping.code_wilaya || '').toString().trim();
     const delivery_type = order.delivery_type || 'domicile';
     const montant = Number(order.total_amount);
@@ -61,12 +61,12 @@ export async function POST(req: Request) {
     // 4. Map delivery type per official docs:
     //    type (string): "1" = Livraison
     //    stop_desk (string): "0"=domicile, "1"=STOP DESK
-    const type      = "1"; 
+    const type = "1";
     const stop_desk = delivery_type === 'bureau' ? "1" : "0";
 
     // 5. Load credentials
     const apiToken = process.env.ECOTRACK_API_TOKEN;
-    const baseUrl  = process.env.ECOTRACK_BASE_URL; // https://app.ecotrack.dz/api
+    const baseUrl = process.env.ECOTRACK_BASE_URL; // https://app.ecotrack.dz/api
 
     if (!apiToken || !baseUrl) {
       console.error('[ECOTRACK] Missing credentials in .env.local');
@@ -75,19 +75,19 @@ export async function POST(req: Request) {
 
     // 6. Build URL query parameters according to official documentation
     const params = new URLSearchParams({
-      api_token:   apiToken,
-      nom_client:  nom_client,
-      telephone:   telephone,
-      adresse:     adresse,
+      api_token: apiToken,
+      nom_client: nom_client,
+      telephone: telephone,
+      adresse: adresse,
       code_wilaya: String(code_wilaya),
-      commune:     commune,
-      montant:     String(montant),
-      type:        type,
-      stop_desk:   stop_desk,
+      commune: commune,
+      montant: String(montant),
+      type: type,
+      stop_desk: stop_desk,
     });
 
     // 7. Build final URL with parameters in the query string
-    const url = `${baseUrl}/v1/create/order?${params.toString()}`;
+    const url = `${baseUrl}/v1/orders?${params.toString()}`;
 
     console.log("ECOTRACK FINAL URL:", url);
     console.log("ECOTRACK PARAMS:", Object.fromEntries(params.entries()));
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
 
     // 8. Send to Ecotrack using POST but with all parameters in the URL
     const response = await fetch(url, {
-      method:  'POST',
+      method: 'POST',
       headers: {
         'Accept': 'application/json',
       },
@@ -118,13 +118,13 @@ export async function POST(req: Request) {
       console.error('[ECOTRACK] Provider rejected:', result);
 
       await supabase.from('orders').update({
-        delivery_status:   'failed',
+        delivery_status: 'failed',
         delivery_provider: 'ecotrack',
       }).eq('id', orderId);
 
       const providerMessage =
         result?.message ||
-        result?.error   ||
+        result?.error ||
         (typeof result === 'string' ? result : null);
 
       const errorMsg = providerMessage
@@ -135,26 +135,26 @@ export async function POST(req: Request) {
         success: false,
         error: errorMsg,
         providerResponse: result,
-        statusCode:  response.status,
-        urlUsed:     url,
-        paramsSent:  Object.fromEntries(params.entries()),
+        statusCode: response.status,
+        urlUsed: url,
+        paramsSent: Object.fromEntries(params.entries()),
       }, { status: 400 });
     }
 
     // 10. Handle success
     const trackingNo =
       result?.tracking_number ||
-      result?.tracking_code   ||
-      result?.tracking        ||
-      result?.id              ||
+      result?.tracking_code ||
+      result?.tracking ||
+      result?.id ||
       'SENT';
 
     await supabase.from('orders').update({
-      delivery_provider:   'ecotrack',
-      delivery_status:     'sent_to_delivery',
-      tracking_number:     trackingNo.toString(),
-      tracking_url:        result?.tracking_url  || null,
-      shipment_reference:  result?.reference     || result?.id?.toString() || null,
+      delivery_provider: 'ecotrack',
+      delivery_status: 'sent_to_delivery',
+      tracking_number: trackingNo.toString(),
+      tracking_url: result?.tracking_url || null,
+      shipment_reference: result?.reference || result?.id?.toString() || null,
       sent_to_delivery_at: new Date().toISOString(),
     }).eq('id', orderId);
 
@@ -162,9 +162,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      trackingNumber:  trackingNo,
-      urlUsed:         url,
-      paramsSent:      Object.fromEntries(params.entries()),
+      trackingNumber: trackingNo,
+      urlUsed: url,
+      paramsSent: Object.fromEntries(params.entries()),
       providerResponse: result,
     });
 
@@ -172,7 +172,7 @@ export async function POST(req: Request) {
     console.error('[ECOTRACK] CRITICAL ERROR:', err);
     return NextResponse.json({
       success: false,
-      error:   `Critical Error: ${err.message}`,
+      error: `Critical Error: ${err.message}`,
       details: err.stack
     }, { status: 500 });
   }

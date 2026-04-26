@@ -21,13 +21,13 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={direction} suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} font-inter bg-background text-foreground transition-colors duration-300`}>
+      <body className={`${inter.variable} ${playfair.variable} bg-background text-foreground transition-colors duration-300`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
             <LayoutShell>
               {children}
             </LayoutShell>
-          </Providers>        
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { Playfair_Display, Inter } from "next/font/google";
 
 const config: Config = {
   content: [
